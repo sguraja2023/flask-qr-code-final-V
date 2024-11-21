@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Style QR Code Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Style QR Code Generator</h1>
+        <form id="qr-form" action="/generate_qr" method="POST">
+            <label for="url">Enter URL:</label>
+            <input type="text" id="url" name="url" required>
+
+            <label for="color">Choose Color:</label>
+            <input type="color" id="color" name="color" value="#000000">
+
+            <label for="shape">Choose Shape:</label>
+            <select id="shape" name="shape">
+                <option value="square">Square</option>
+                <option value="circle">Circle</option>
+                <option value="triangle">Triangle</option>
+            </select>
+
+            <button type="submit">Generate QR Code</button>
+        </form>
+
+        <div id="qr-result"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
