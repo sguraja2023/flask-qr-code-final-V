@@ -74,7 +74,7 @@ def add_image_to_qr(qr_image, image_file):
 
     # Calculate position for the overlay image
     position = ((qr_width - overlay.width) // 2, (qr_height - overlay.height) // 2)
-    qr_image.paste(overlay, position, overlay)  # Paste with transparency
+    qr_image.paste(overlay, position, overlay.convert("RGBA"))  # Paste with transparency
     return qr_image
 
 # Premium features page

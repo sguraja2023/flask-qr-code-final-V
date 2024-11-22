@@ -6,3 +6,9 @@ document.getElementById('premiumBtn').addEventListener('click', function() {
     document.getElementById('uploadImageBtn').style.display = 'inline-block';
     document.getElementById('rgbColor').style.display = 'inline-block';
 });
+
+// Sync the color picker with the color input field
+document.getElementById('rgbColor').addEventListener('input', function() {
+    // Update the color input field with the RGB color picker value
+    document.getElementById('color').value = this.value;
+});
