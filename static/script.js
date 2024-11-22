@@ -7,8 +7,12 @@ document.getElementById('premiumBtn').addEventListener('click', function() {
     document.getElementById('rgbColor').style.display = 'inline-block';
 });
 
-// Update the text input when a color is picked from the color wheel
-document.getElementById('rgbColor').addEventListener('input', function() {
-    // Get the value from the color wheel and set it in the color input field
-    document.getElementById('color').value = this.value;
-});
+function updateColorValue(event) {
+    // Update the value in the color input field to send it with the form
+    const colorInput = document.getElementById('color');
+    colorInput.value = event.target.value;
+}
+
+function triggerFileUpload() {
+    document.getElementById('image').click();
+}

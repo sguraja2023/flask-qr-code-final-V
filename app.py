@@ -66,15 +66,18 @@ def apply_shape_mask(qr_image, shape):
     qr_image.putalpha(mask)
     return qr_image
 
-# Function to add an image to the center of the QR code
+# Function to add an image to the center of the QR code with proper transparency handling
 def add_image_to_qr(qr_image, image_file):
-    overlay = Image.open(image_file)
+    overlay = Image.open(image_file).convert("RGBA")  # Ensure RGBA mode for transparency handling
     qr_width, qr_height = qr_image.size
     overlay = overlay.resize((qr_width // 4, qr_height // 4))  # Resize overlay image to fit
 
     # Calculate position for the overlay image
     position = ((qr_width - overlay.width) // 2, (qr_height - overlay.height) // 2)
-    qr_image.paste(overlay, position, overlay.convert("RGBA"))  # Paste with transparency
+    
+    # Create an image with a transparent background and paste the overlay
+    qr_image.paste(overlay, position, overlay)  # Paste with transparency (alpha channel)
+
     return qr_image
 
 # Premium features page

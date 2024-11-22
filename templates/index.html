@@ -14,7 +14,7 @@
             <input type="text" id="url" name="url" required>
 
             <label for="color">Choose Color:</label>
-            <input type="text" id="color" name="color" placeholder="e.g., red" required>
+            <input type="text" id="color" name="color" placeholder="e.g., red">
 
             <label for="shape">Choose Shape:</label>
             <select id="shape" name="shape">
@@ -24,7 +24,7 @@
             </select>
 
             <!-- Hidden Image Upload (Premium) -->
-            <label for="image" id="imageLabel" style="display:none;">Upload Image/Logo (Premium):</label>
+            <label for="image" id="imageLabel" style="display:none;">Upload Image/Logo for Center (Premium):</label>
             <input type="file" id="image" name="image" accept="image/png" style="display:none;">
 
             <button type="submit">Generate QR Code</button>
@@ -35,10 +35,10 @@
         <div id="premiumOptions" style="display:none;">
             <!-- RGB Color Picker -->
             <label for="rgbColor">Choose a Custom RGB Color:</label>
-            <input type="color" id="rgbColor" name="color" style="display:none;">
+            <input type="color" id="rgbColor" name="color" style="display:none;" onchange="updateColorValue(event)">
             
-            <!-- Show Upload Image Button for Premium Users -->
-            <button id="uploadImageBtn" style="display:none;">Upload Image/Logo for Center</button>
+            <!-- Show Upload Image/Logo Button for Premium Users -->
+            <button type="button" id="uploadImageBtn" style="display:none;" onclick="triggerFileUpload()">Upload Image/Logo for Center</button>
         </div>
     </div>
 
