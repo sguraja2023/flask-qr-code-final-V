@@ -7,8 +7,8 @@ document.getElementById('premiumBtn').addEventListener('click', function() {
     document.getElementById('rgbColor').style.display = 'inline-block';
 });
 
-// Sync the color picker with the color input field
+// Update the text input when a color is picked from the color wheel
 document.getElementById('rgbColor').addEventListener('input', function() {
-    // Update the color input field with the RGB color picker value
+    // Get the value from the color wheel and set it in the color input field
     document.getElementById('color').value = this.value;
 });
