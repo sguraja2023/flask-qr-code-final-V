@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, redirect, url_for, flash
 import qrcode
 from PIL import Image, ImageDraw
 import os
+import webcolors  # To validate color names
 
 app = Flask(__name__)
+app.secret_key = "secret_key"  # Required for flash messages
 
 # Directory to save generated QR codes
 UPLOAD_FOLDER = 'uploads'
@@ -20,8 +22,13 @@ def home():
 @app.route('/generate_qr', methods=['POST'])
 def generate_qr():
     url = request.form['url']
-    color = request.form.get('color', 'black')
+    color = request.form.get('color', 'black').strip().lower()
     shape = request.form.get('shape', 'square')
+
+    # Validate color
+    if not is_valid_color(color):
+        flash("Invalid color name. Please enter a valid color name (e.g., red, blue, green).")
+        return redirect(url_for('home'))
 
     # Generate QR code
     qr = qrcode.QRCode(
@@ -47,6 +54,14 @@ def generate_qr():
     img_with_shape.save(file_path, format='PNG')
 
     return send_file(file_path, mimetype='image/png', as_attachment=True)
+
+def is_valid_color(color_name):
+    try:
+        # Check if the color name is valid
+        webcolors.name_to_rgb(color_name)
+        return True
+    except ValueError:
+        return False
 
 def apply_shape_mask(qr_image, shape):
     width, height = qr_image.size

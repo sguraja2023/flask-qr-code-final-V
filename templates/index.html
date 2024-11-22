@@ -46,21 +46,30 @@
             font-size: 0.9em;
             color: #555;
         }
+        .flash-message {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <h1>QR Code Generator</h1>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-message">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+
     <form action="/generate_qr" method="POST">
         <label for="url">Enter URL:</label><br>
         <input type="text" id="url" name="url" placeholder="https://example.com" required><br>
         
-        <label for="color">Select Color:</label><br>
-        <select id="color" name="color">
-            <option value="black">Black</option>
-            <option value="blue">Blue</option>
-            <option value="red">Red</option>
-            <option value="green">Green</option>
-        </select><br>
+        <label for="color">Enter Color Name:</label><br>
+        <input type="text" id="color" name="color" placeholder="e.g., red, blue, green"><br>
 
         <label for="shape">Select Shape:</label><br>
         <select id="shape" name="shape">
