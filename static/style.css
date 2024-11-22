@@ -1,49 +1,68 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f7f7f7;
-    color: #333;
+    background-color: #f3f3f3;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
+    color: #333;
 }
 
 .container {
     text-align: center;
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    padding: 30px;
     border-radius: 10px;
-    width: 300px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
 }
 
 h1 {
-    font-size: 24px;
+    font-size: 2em;
+    margin-bottom: 20px;
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
 }
 
-input[type="text"], input[type="color"], select {
+input[type="text"], select, button {
     padding: 10px;
-    font-size: 14px;
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
 
 button {
-    padding: 10px;
-    background-color: #007bff;
+    background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #45a049;
+}
+
+button:disabled {
+    background-color: #cccccc;
+}
+
+#premiumOptions {
+    margin-top: 20px;
+}
+
+#premiumBtn {
+    background-color: #ff9800;
+}
+
+#premiumBtn:hover {
+    background-color: #e68900;
 }

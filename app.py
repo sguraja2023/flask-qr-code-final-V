@@ -1,11 +1,9 @@
-from flask import Flask, render_template, request, send_file, redirect, url_for, flash
+from flask import Flask, render_template, request, send_file, redirect, url_for
 import qrcode
 from PIL import Image, ImageDraw
 import os
-import webcolors  # To validate color names
 
 app = Flask(__name__)
-app.secret_key = "secret_key"  # Required for flash messages
 
 # Directory to save generated QR codes
 UPLOAD_FOLDER = 'uploads'
@@ -15,39 +13,36 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
+# Route for homepage
 @app.route('/')
 def home():
     return render_template('index.html')
 
+# Route for generating the QR code
 @app.route('/generate_qr', methods=['POST'])
 def generate_qr():
     url = request.form['url']
-    color = request.form.get('color', 'black').strip().lower()
+    color = request.form.get('color', 'black')
     shape = request.form.get('shape', 'square')
-
-    # Validate color
-    if not is_valid_color(color):
-        flash("Invalid color name. Please enter a valid color name (e.g., red, blue, green).")
-        return redirect(url_for('home'))
+    image_file = request.files.get('image', None)  # Handle image upload for premium users
 
     # Generate QR code
     qr = qrcode.QRCode(
         version=1,
         box_size=10,
-        border=0,  # No default border
+        border=5,
         error_correction=qrcode.constants.ERROR_CORRECT_H
     )
     qr.add_data(url)
     qr.make(fit=True)
     img = qr.make_image(fill_color=color, back_color="white").convert("RGBA")
 
-    # Add padding for centering
-    padding = 50  # Adjust as needed
-    centered_img = Image.new("RGBA", (img.width + padding * 2, img.height + padding * 2), "white")
-    centered_img.paste(img, (padding, padding))
-
     # Apply shape mask
-    img_with_shape = apply_shape_mask(centered_img, shape)
+    img_with_shape = apply_shape_mask(img, shape)
+
+    # Add image to the center if uploaded
+    if image_file:
+        img_with_shape = add_image_to_qr(img_with_shape, image_file)
 
     # Save QR image to file
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'qr_code.png')
@@ -55,14 +50,7 @@ def generate_qr():
 
     return send_file(file_path, mimetype='image/png', as_attachment=True)
 
-def is_valid_color(color_name):
-    try:
-        # Check if the color name is valid
-        webcolors.name_to_rgb(color_name)
-        return True
-    except ValueError:
-        return False
-
+# Function to apply shape mask (square, circle, triangle)
 def apply_shape_mask(qr_image, shape):
     width, height = qr_image.size
     mask = Image.new("L", (width, height), 255)
@@ -77,6 +65,22 @@ def apply_shape_mask(qr_image, shape):
 
     qr_image.putalpha(mask)
     return qr_image
+
+# Function to add an image to the center of the QR code
+def add_image_to_qr(qr_image, image_file):
+    overlay = Image.open(image_file)
+    qr_width, qr_height = qr_image.size
+    overlay = overlay.resize((qr_width // 4, qr_height // 4))  # Resize overlay image to fit
+
+    # Calculate position for the overlay image
+    position = ((qr_width - overlay.width) // 2, (qr_height - overlay.height) // 2)
+    qr_image.paste(overlay, position, overlay)  # Paste with transparency
+    return qr_image
+
+# Premium features page
+@app.route('/premium')
+def premium():
+    return render_template('premium.html')
 
 if __name__ == "__main__":
     app.run(debug=True)

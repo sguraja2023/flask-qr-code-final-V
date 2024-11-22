@@ -4,82 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        form {
-            margin: 20px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-            max-width: 400px;
-        }
-        input[type="text"], select {
-            width: 90%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .note {
-            font-size: 0.9em;
-            color: #555;
-        }
-        .flash-message {
-            color: red;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>QR Code Generator</h1>
+    <div class="container">
+        <h1>QR Code Generator</h1>
+        <form action="{{ url_for('generate_qr') }}" method="POST" enctype="multipart/form-data">
+            <label for="url">Enter URL:</label>
+            <input type="text" id="url" name="url" required>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="flash-message">
-                {{ messages[0] }}
-            </div>
-        {% endif %}
-    {% endwith %}
+            <label for="color">Choose Color:</label>
+            <input type="text" id="color" name="color" placeholder="e.g., red">
 
-    <form action="/generate_qr" method="POST">
-        <label for="url">Enter URL:</label><br>
-        <input type="text" id="url" name="url" placeholder="https://example.com" required><br>
-        
-        <label for="color">Enter Color Name:</label><br>
-        <input type="text" id="color" name="color" placeholder="e.g., red, blue, green"><br>
+            <label for="shape">Choose Shape:</label>
+            <select id="shape" name="shape">
+                <option value="square">Square</option>
+                <option value="circle">Circle</option>
+                <option value="triangle">Triangle</option>
+            </select>
 
-        <label for="shape">Select Shape:</label><br>
-        <select id="shape" name="shape">
-            <option value="square">Square</option>
-            <option value="circle">Circle</option>
-            <option value="triangle">Triangle</option>
-        </select><br>
+            <label for="image">Upload Image (Premium):</label>
+            <input type="file" id="image" name="image" accept="image/png" style="display:none;">
 
-        <button type="submit">Generate QR Code</button>
-    </form>
-    <p class="note">Your QR code will be downloaded automatically after generation.</p>
+            <button type="submit">Generate QR Code</button>
+        </form>
+
+        <button id="premiumBtn">Sign Up for Premium Features</button>
+        <div id="premiumOptions" style="display:none;">
+            <button id="colorWheelBtn">Choose Color with Wheel</button>
+            <button id="uploadImageBtn">Upload Image for Center</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
