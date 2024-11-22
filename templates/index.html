@@ -23,16 +23,22 @@
                 <option value="triangle">Triangle</option>
             </select>
 
-            <label for="image">Upload Image (Premium):</label>
+            <!-- Hidden Image Upload (Premium) -->
+            <label for="image" id="imageLabel" style="display:none;">Upload Image for Center (Premium):</label>
             <input type="file" id="image" name="image" accept="image/png" style="display:none;">
 
             <button type="submit">Generate QR Code</button>
         </form>
 
+        <!-- Premium Feature Button -->
         <button id="premiumBtn">Sign Up for Premium Features</button>
         <div id="premiumOptions" style="display:none;">
-            <button id="colorWheelBtn">Choose Color with Wheel</button>
-            <button id="uploadImageBtn">Upload Image for Center</button>
+            <!-- RGB Color Picker -->
+            <label for="rgbColor">Choose a Custom RGB Color:</label>
+            <input type="color" id="rgbColor" name="color" style="display:none;">
+            
+            <!-- Show Upload Image Button for Premium Users -->
+            <button id="uploadImageBtn" style="display:none;">Upload Image for Center</button>
         </div>
     </div>
 

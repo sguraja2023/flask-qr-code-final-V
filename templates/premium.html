@@ -9,8 +9,13 @@
 <body>
     <div class="container">
         <h1>Premium Features</h1>
-        <button id="colorWheelBtn">Choose Color with Color Wheel</button>
-        <button id="uploadImageBtn">Upload Image for Center of QR Code</button>
+        <!-- RGB Color Picker -->
+        <label for="rgbColor">Choose a Custom RGB Color:</label>
+        <input type="color" id="rgbColor" name="color">
+
+        <!-- Image Upload -->
+        <label for="image">Upload Image for Center (Premium):</label>
+        <input type="file" id="image" name="image" accept="image/png">
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
