@@ -8,7 +8,9 @@
 </head>
 <body>
     <div class="container">
-        <h1>Style QR</h1>
+        <!-- Image as title with resized dimensions -->
+        <img src="{{ url_for('static', filename='StyleQRNEWNEW.png') }}" alt="Style QR" id="title-image" style="max-width: 180px; height: auto;">
+
         <form action="{{ url_for('generate_qr') }}" method="POST" enctype="multipart/form-data">
             <label for="url">Enter URL:</label>
             <input type="text" id="url" name="url" required>
@@ -16,7 +18,7 @@
             <label for="color">Choose Color:</label>
             <input type="text" id="color" name="color" placeholder="e.g., red">
 
-            <label for="shape">Choose Shape Pattern:</label> <!-- Updated label -->
+            <label for="shape">Choose Shape Pattern:</label>
             <select id="shape" name="shape">
                 <option value="square">Square</option>
                 <option value="circle">Circle</option>
