@@ -4,6 +4,9 @@ from PIL import Image
 from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.moduledrawers import CircleModuleDrawer, SquareModuleDrawer
 import os
+import re
+from urllib.parse import urlparse
+import matplotlib
 
 app = Flask(__name__)
 
@@ -23,7 +26,22 @@ USER_DATA = {
     "admin@example.com": "password123"
 }
 
-# Route for login page
+# URL validation function
+def is_valid_url(url):
+    try:
+        result = urlparse(url)
+        return result.scheme in ['http', 'https'] and result.netloc
+    except ValueError:
+        return False
+
+# Hex color validation function
+def is_valid_hex_color(color):
+    return bool(re.match(r'^#[0-9a-fA-F]{6}$', color))
+
+# Color name validation function (from matplotlib)
+def is_valid_color_name(color):
+    return color.lower() in matplotlib.colors.CSS4_COLORS
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -85,6 +103,16 @@ def generate_qr():
     color = request.form.get('color', 'black')  # Get the selected color
     shape = request.form.get('shape', 'square')
     image_file = request.files.get('image', None)
+
+    # Validate URL
+    if not is_valid_url(url):
+        flash('Invalid URL', 'danger')
+        return redirect(url_for('home'))
+
+    # Validate color (either hex or named color)
+    if not (is_valid_hex_color(color) or is_valid_color_name(color)):
+        flash('Invalid color. Please enter a valid hex code or color name.', 'danger')
+        return redirect(url_for('home'))
 
     # Ensure the color is properly formatted (e.g., RGB, hex, etc.)
     if color.startswith("rgb"):
