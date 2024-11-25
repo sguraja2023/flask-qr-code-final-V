@@ -16,7 +16,7 @@
             <label for="color">Choose Color:</label>
             <input type="text" id="color" name="color" placeholder="e.g., red">
 
-            <label for="shape">Choose Shape:</label>
+            <label for="shape">Choose Shape Pattern:</label> <!-- Updated label -->
             <select id="shape" name="shape">
                 <option value="square">Square</option>
                 <option value="circle">Circle</option>
@@ -42,7 +42,7 @@
         </div>
 
         <!-- Log Out Button -->
-        <button id="logoutBtn" onclick="window.location.href='{{ url_for('login') }}';">Log Out</button>
+        <button id="logoutBtn" onclick="window.location.href='{{ url_for('login') }}';" style="background-color: red;">Log Out</button> <!-- Updated button style -->
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>

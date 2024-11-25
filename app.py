@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file , make_response
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, make_response
 import qrcode
-from PIL import Image, ImageDraw
+from PIL import Image
+from qrcode.image.styledpil import StyledPilImage
+from qrcode.image.styles.moduledrawers import CircleModuleDrawer, SquareModuleDrawer
 import os
 
 app = Flask(__name__)
@@ -80,9 +82,17 @@ def generate_qr():
         return redirect(url_for('login'))
 
     url = request.form['url']
-    color = request.form.get('color', 'black')
+    color = request.form.get('color', 'black')  # Get the selected color
     shape = request.form.get('shape', 'square')
     image_file = request.files.get('image', None)
+
+    # Ensure the color is properly formatted (e.g., RGB, hex, etc.)
+    if color.startswith("rgb"):
+        color = tuple(map(int, color[4:-1].split(", ")))  # Convert "rgb(r, g, b)" to a tuple (r, g, b)
+    elif color.startswith("#"):
+        color = color  # Hex color remains unchanged
+    else:
+        color = color  # Named colors (like 'red', 'blue') remain unchanged
 
     # Generate QR code
     qr = qrcode.QRCode(
@@ -93,36 +103,36 @@ def generate_qr():
     )
     qr.add_data(url)
     qr.make(fit=True)
-    img = qr.make_image(fill_color=color, back_color="white").convert("RGBA")
 
-    # Apply shape mask
-    img_with_shape = apply_shape_mask(img, shape)
+    # Use StyledPilImage with shape (circle, square, or triangle)
+    if shape == "circle":
+        img = qr.make_image(
+            fill_color=color,  # Color is applied here
+            back_color="white",
+            image_factory=StyledPilImage,
+            module_drawer=CircleModuleDrawer(),
+            eye_drawer=SquareModuleDrawer()  # Square eyes for the circular QR
+        )
+    elif shape == "triangle":
+        img = qr.make_image(
+            fill_color=color,  # Color is applied here
+            back_color="white",
+            image_factory=StyledPilImage,
+            module_drawer=TriangleModuleDrawer(),  # Triangle modules
+            eye_drawer=SquareModuleDrawer()  # Square eyes for the triangle QR
+        )
+    else:  # Default to square
+        img = qr.make_image(fill_color=color, back_color="white")
 
     # Add image to the center if uploaded
     if image_file:
-        img_with_shape = add_image_to_qr(img_with_shape, image_file)
+        img = add_image_to_qr(img, image_file)
 
     # Save QR image to file
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'qr_code.png')
-    img_with_shape.save(file_path, format='PNG')
+    img.save(file_path, format='PNG')
 
     return send_file(file_path, mimetype='image/png', as_attachment=True)
-
-# Function to apply shape mask (square, circle, triangle)
-def apply_shape_mask(qr_image, shape):
-    width, height = qr_image.size
-    mask = Image.new("L", (width, height), 255)
-    draw = ImageDraw.Draw(mask)
-
-    if shape == "square":
-        draw.rectangle([0, 0, width, height], fill=255)
-    elif shape == "circle":
-        draw.ellipse([0, 0, width, height], fill=255)
-    elif shape == "triangle":
-        draw.polygon([(width // 2, 0), (width, height), (0, height)], fill=255)
-
-    qr_image.putalpha(mask)
-    return qr_image
 
 # Function to add an image to the center of the QR code with proper transparency handling
 def add_image_to_qr(qr_image, image_file):
@@ -137,6 +147,27 @@ def add_image_to_qr(qr_image, image_file):
     qr_image.paste(overlay, position, overlay)  # Paste with transparency (alpha channel)
 
     return qr_image
+
+# Define the custom TriangleModuleDrawer
+class TriangleModuleDrawer:
+    def __init__(self):
+        self.fill_color = None
+
+    def initialize(self, context, fill_color):
+        # Initialize the color
+        self.fill_color = fill_color
+        context.fill_color = self.fill_color  # Store the fill color in the context
+
+    def __call__(self, context, module_size, x, y):
+        # Get the top-left corner of the module square
+        left = x * module_size
+        top = y * module_size
+        right = (x + 1) * module_size
+        bottom = (y + 1) * module_size
+
+        # Create a triangle shape
+        triangle = [(left, bottom), (right, bottom), ((left + right) / 2, top)]
+        context.polygon(triangle, fill=context.fill_color)  # Use the fill color from context
 
 # Premium features page
 @app.route('/premium')

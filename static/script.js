@@ -1,3 +1,4 @@
+
 document.getElementById('premiumBtn').addEventListener('click', function() {
     // Display premium options when clicking the 'Sign Up for Premium Features' button
     document.getElementById('premiumOptions').style.display = 'block';
