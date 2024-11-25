@@ -40,6 +40,9 @@
             <!-- Show Upload Image/Logo Button for Premium Users -->
             <button type="button" id="uploadImageBtn" style="display:none;" onclick="triggerFileUpload()">Upload Image/Logo for Center</button>
         </div>
+
+        <!-- Log Out Button -->
+        <button id="logoutBtn" onclick="window.location.href='{{ url_for('login') }}';">Log Out</button>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>

@@ -1,9 +1,12 @@
-from flask import Flask, render_template, request, send_file, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file , make_response
 import qrcode
 from PIL import Image, ImageDraw
 import os
 
 app = Flask(__name__)
+
+# Secret key for session management
+app.secret_key = 'your_secret_key'
 
 # Directory to save generated QR codes
 UPLOAD_FOLDER = 'uploads'
@@ -13,18 +16,73 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
+# Dummy user data (for demonstration)
+USER_DATA = {
+    "admin@example.com": "password123"
+}
+
+# Route for login page
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        # Implement login logic here
+        if username in USER_DATA and USER_DATA[username] == password:
+            session['user'] = username  # Log the user in
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid credentials. Please try again.', 'danger')
+
+    return render_template('login.html')
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        # Add logic to save user details securely
+        flash('Signup successful! Please log in.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('signup.html')
+
+# Route for logout
+@app.route('/logout')
+def logout():
+    if 'user' in session:
+        session.clear()
+        flash('You have been logged out.', 'info')
+    else:
+        flash('You were not logged in.', 'warning')
+    
+    response = make_response(redirect(url_for('login')))
+    response.delete_cookie('session')  # Clear session cookie
+    return response
+
 # Route for homepage
 @app.route('/')
 def home():
+    if 'user' not in session:
+        flash('Please log in to access this page.', 'warning')
+        return redirect(url_for('login'))
     return render_template('index.html')
 
 # Route for generating the QR code
 @app.route('/generate_qr', methods=['POST'])
 def generate_qr():
+    if 'user' not in session:
+        flash('Please log in to access this feature.', 'warning')
+        return redirect(url_for('login'))
+
     url = request.form['url']
     color = request.form.get('color', 'black')
     shape = request.form.get('shape', 'square')
-    image_file = request.files.get('image', None)  # Handle image upload for premium users
+    image_file = request.files.get('image', None)
 
     # Generate QR code
     qr = qrcode.QRCode(
@@ -83,6 +141,9 @@ def add_image_to_qr(qr_image, image_file):
 # Premium features page
 @app.route('/premium')
 def premium():
+    if 'user' not in session:
+        flash('Please log in to access this page.', 'warning')
+        return redirect(url_for('login'))
     return render_template('premium.html')
 
 if __name__ == "__main__":
