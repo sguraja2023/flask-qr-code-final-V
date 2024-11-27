@@ -164,7 +164,7 @@ button:hover {
     top: 0;
     width: 900px;
     height: 100%;
-    background-image: url("ext.jpg");
+    background-image: url("/static/StyleQRNEWNEW.png");
     opacity: .8;
     background-size: cover;
     transition: transform 1.2s ease-in-out;
