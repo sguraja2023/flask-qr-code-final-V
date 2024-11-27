@@ -9,14 +9,22 @@ import os
 import re
 from urllib.parse import urlparse
 import matplotlib
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 app = Flask(__name__)
+
+mongo_uri = os.getenv("MONGO_URI")
+print(f"MONGO_URI: {mongo_uri}")
 
 # Secret key for session management
 app.secret_key = 'your_secret_key'
 
 # MongoDB configuration
-app.config["MONGO_URI"] = "mongodb://localhost:27017/your_db_name"
+app.config["MONGO_URI"] = os.getenv("MONGO_URI")
+
 mongo = PyMongo(app)
 
 # Directory to save generated QR codes
