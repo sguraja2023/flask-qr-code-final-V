@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, make_response
+from flask_pymongo import PyMongo
+from datetime import datetime
 import qrcode
 from PIL import Image
 from qrcode.image.styledpil import StyledPilImage
@@ -13,6 +15,10 @@ app = Flask(__name__)
 # Secret key for session management
 app.secret_key = 'your_secret_key'
 
+# MongoDB configuration
+app.config["MONGO_URI"] = "mongodb://localhost:27017/your_db_name"
+mongo = PyMongo(app)
+
 # Directory to save generated QR codes
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -20,11 +26,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Ensure the upload folder exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
-
-# Dummy user data (for demonstration)
-USER_DATA = {
-    "admin@example.com": "password123"
-}
 
 # URL validation function
 def is_valid_url(url):
@@ -49,7 +50,8 @@ def login():
         password = request.form.get('password')
 
         # Implement login logic here
-        if username in USER_DATA and USER_DATA[username] == password:
+        user = mongo.db.users.find_one({'email': username})
+        if user and user['password'] == password:
             session['user'] = username  # Log the user in
             flash('Login successful!', 'success')
             return redirect(url_for('home'))
@@ -65,7 +67,15 @@ def signup():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # Add logic to save user details securely
+        # Add user to MongoDB
+        user_data = {
+            'name': name,
+            'email': email,
+            'password': password,
+            'is_premium': False
+        }
+        mongo.db.users.insert_one(user_data)
+
         flash('Signup successful! Please log in.', 'success')
         return redirect(url_for('login'))
 
@@ -204,6 +214,47 @@ def premium():
         flash('Please log in to access this page.', 'warning')
         return redirect(url_for('login'))
     return render_template('premium.html')
+
+# Route for upgrading to premium (simulate a purchase)
+@app.route('/upgrade_premium', methods=['POST'])
+def upgrade_premium():
+    if 'user' not in session:
+        flash('Please log in to access this feature.', 'warning')
+        return redirect(url_for('login'))
+
+    user_email = session['user']
+    # Update the user's premium status
+    mongo.db.users.update_one({'email': user_email}, {'$set': {'is_premium': True}})
+
+    # Record the sale
+    sale_record = {
+        'user_email': user_email,
+        'amount': 10.0,  # Example premium cost
+        'date': datetime.now()
+    }
+    mongo.db.sales.insert_one(sale_record)
+
+    flash('Successfully upgraded to premium!', 'success')
+    return redirect(url_for('home'))
+
+# Route for admin page
+@app.route('/admin', methods=['GET'])
+def admin_dashboard():
+    if 'user' not in session or session['user'] != 'admin@example.com':
+        flash('Unauthorized access. Please log in as admin.', 'danger')
+        return redirect(url_for('login'))
+
+    # Retrieve user data from MongoDB
+    users = list(mongo.db.users.find())
+    user_count = len(users)
+    premium_users = [user for user in users if user.get('is_premium')]
+    premium_count = len(premium_users)
+
+    # Retrieve sales data from MongoDB
+    sales = mongo.db.sales.find()
+    total_sales = sum(sale.get('amount', 0) for sale in sales)
+
+    return render_template('admin.html', user_count=user_count, premium_count=premium_count, total_sales=total_sales)
 
 if __name__ == "__main__":
     app.run(debug=True)
