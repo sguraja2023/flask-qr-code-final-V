@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login/Signup Form</title>
-    <!-- Link the CSS file for styling -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -15,11 +14,11 @@
                 <h2>Welcome</h2>
                 <label>
                     <span>Email</span>
-                    <input type="email" name="username" required/>
+                    <input type="email" name="username" autocomplete="username" required/>
                 </label>
                 <label>
                     <span>Password</span>
-                    <input type="password" name="password" required/>
+                    <input type="password" name="password" autocomplete="current-password" required/>
                 </label>
                 <p class="forgot-pass">Forgot password?</p>
                 <button type="submit" class="submit">Sign In</button>
@@ -51,11 +50,11 @@
                     </label>
                     <label>
                         <span>Email</span>
-                        <input type="email" name="email" required/>
+                        <input type="email" name="email" autocomplete="username" required/>
                     </label>
                     <label>
                         <span>Password</span>
-                        <input type="password" name="password" required/>
+                        <input type="password" name="password" autocomplete="new-password" required/>
                     </label>
                     <button type="submit" class="submit">Sign Up</button>
                 </form>

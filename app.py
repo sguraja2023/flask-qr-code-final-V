@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, make_response
 from flask_pymongo import PyMongo
+from flask_session import Session
 from datetime import datetime
 import qrcode
 from PIL import Image
@@ -10,7 +11,7 @@ import re
 from urllib.parse import urlparse
 import matplotlib
 from dotenv import load_dotenv
-
+from datetime import timedelta
 
 load_dotenv()
 
@@ -21,6 +22,15 @@ print(f"MONGO_URI: {mongo_uri}")
 
 # Secret key for session management
 app.secret_key = 'your_secret_key'
+
+# Set the session lifetime
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+
+# Use server-side session with Flask-Session
+app.config['SESSION_TYPE'] = 'filesystem'  # Use filesystem to store sessions
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_USE_SIGNER'] = True
+Session(app)
 
 # MongoDB configuration
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
@@ -51,16 +61,30 @@ def is_valid_hex_color(color):
 def is_valid_color_name(color):
     return color.lower() in matplotlib.colors.CSS4_COLORS
 
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
+        username = request.form.get('username').lower()
         password = request.form.get('password')
 
-        # Login logic
+        # Debugging step: Print out user input
+        print(f"Login attempt - Username: {username}, Password: {password}")
+
+        # Find the user in MongoDB
         user = mongo.db.users.find_one({'email': username})
+
+        # Debugging step: Print what is fetched from the database
+        if user:
+            print(f"User found: {user}")
+        else:
+            print("No user found with that email.")
+
+        # Check credentials
         if user and user['password'] == password:
             session['user'] = username
+            session.permanent = True
             flash('Login successful!', 'success')
             return redirect(url_for('home'))
         else:
@@ -72,7 +96,7 @@ def login():
 def signup():
     if request.method == 'POST':
         name = request.form.get('name')
-        email = request.form.get('email')
+        email = request.form.get('email').lower()  # Convert email to lowercase
         password = request.form.get('password')
 
         # Check if the email already exists in the database
@@ -83,7 +107,7 @@ def signup():
         # Add new user to the database
         user_data = {
             'name': name,
-            'email': email,
+            'email': email,  # Store email in lowercase
             'password': password,
             'is_premium': False
         }
@@ -91,19 +115,37 @@ def signup():
 
         flash('Signup successful! Please log in.', 'success')
         return redirect(url_for('login'))
+    
+    
+@app.route('/some_protected_route')
+def some_protected_route():
+    if 'user' in session:
+        print("Session user:", session['user'])
+    else:
+        print("No user in session.")
+    return render_template('some_template.html')
 
-    return render_template('login.html')
-# Route for logout
 @app.route('/logout')
 def logout():
     if 'user' in session:
-        session.clear()
+        print("Logging out user:", session['user'])  # Debug print to see current user before clearing
+        session.pop('user', None)  # Remove specific user session data
+        session.clear()  # Clears all session data from the server side
         flash('You have been logged out.', 'info')
     else:
+        print("No user was in session.")  # Debug if no user was in session
         flash('You were not logged in.', 'warning')
-    
+
+    # Clear session cookie
     response = make_response(redirect(url_for('login')))
-    response.delete_cookie('session')  # Clear session cookie
+    response.set_cookie('session', '', expires=0)  # Clear the session cookie from the browser
+    return response
+
+@app.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
     return response
 
 # Route for homepage
