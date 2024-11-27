@@ -57,10 +57,10 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        # Implement login logic here
+        # Login logic
         user = mongo.db.users.find_one({'email': username})
         if user and user['password'] == password:
-            session['user'] = username  # Log the user in
+            session['user'] = username
             flash('Login successful!', 'success')
             return redirect(url_for('home'))
         else:
@@ -75,7 +75,12 @@ def signup():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # Add user to MongoDB
+        # Check if the email already exists in the database
+        if mongo.db.users.find_one({'email': email}):
+            flash('Email already exists. Please use a different email.', 'danger')
+            return redirect(url_for('signup'))
+
+        # Add new user to the database
         user_data = {
             'name': name,
             'email': email,
@@ -87,8 +92,7 @@ def signup():
         flash('Signup successful! Please log in.', 'success')
         return redirect(url_for('login'))
 
-    return render_template('signup.html')
-
+    return render_template('login.html')
 # Route for logout
 @app.route('/logout')
 def logout():
