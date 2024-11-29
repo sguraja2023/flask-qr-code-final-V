@@ -8,20 +8,11 @@
 </head>
 <body>
     <div class="container">
-        <!-- Welcome Message -->
-        <h1>Welcome, {{ session.get('user') }}!</h1>
-        <p>Your role: {{ session.get('role') }}</p>
-
-        <!-- Admin Dashboard Link -->
-        {% if session.get('role') == 'admin' %}
-        <a href="{{ url_for('admin_dashboard') }}">
-            <button class="admin-btn">Go to Admin Dashboard</button>
-        </a>
-        {% endif %}
-
+        <!-- Logo -->
+        <img src="{{ url_for('static', filename='StyleQRNEWNEW.png') }}" alt="Style QR Logo" 
+             style="max-width: 60%; height: auto; margin-bottom: 20px;">
 
         <!-- QR Code Generator Form -->
-        <h2>Style Your QR Code</h2>
         <form action="{{ url_for('generate_qr') }}" method="POST" enctype="multipart/form-data">
             <!-- URL Input -->
             <label for="url">Enter URL:</label>
@@ -46,9 +37,7 @@
         <a href="{{ url_for('premium') }}">
             <button class="premium-btn">Access Premium Features</button>
         </a>
-        
 
-        <!-- Logout Button -->
         <a href="{{ url_for('logout') }}" class="logout-btn">Log Out</a>
     </div>
 
@@ -70,18 +59,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 400px;
             text-align: center;
-        }
-
-        h1 {
-            margin-bottom: 10px;
-            font-size: 24px;
-            color: #333;
-        }
-
-        h2 {
-            margin: 20px 0;
-            font-size: 20px;
-            color: #333;
         }
 
         label {
@@ -117,18 +94,15 @@
             background-color: #218838;
         }
 
-        .admin-btn {
-            background-color: #f39c12;
+        .premium-btn {
+            background-color: #007bff;
             color: white;
-            display: block;
-            margin: 10px 0;
             width: 100%;
-            padding: 10px;
-            text-align: center;
+            margin: 15px 0;
         }
 
-        .admin-btn:hover {
-            background-color: #d35400;
+        .premium-btn:hover {
+            background-color: #0056b3;
         }
 
         .logout-btn {
@@ -147,9 +121,5 @@
             background-color: #b82e39;
         }
     </style>
-
-    <script>
-        console.log("Role: {{ session.get('role') }}");
-    </script>
 </body>
 </html>
