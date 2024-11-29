@@ -190,28 +190,32 @@ def generate_qr():
         flash('Please log in to access this feature.', 'warning')
         return redirect(url_for('login'))
 
-    url = request.form['url']
-    color = request.form.get('color', 'black')  # Get the selected color
+    # Get form data
+    url = request.form.get('url')
+    color = request.form.get('color', 'black')
     shape = request.form.get('shape', 'square')
     image_file = request.files.get('image', None)
+
+    # Debugging statements
+    print(f"URL: {url}, Color: {color}, Shape: {shape}, Image File: {image_file}")
 
     # Validate URL
     if not is_valid_url(url):
         flash('Invalid URL', 'danger')
         return redirect(url_for('home'))
 
-    # Validate color (either hex or named color)
+    # Validate color
     if not (is_valid_hex_color(color) or is_valid_color_name(color)):
         flash('Invalid color. Please enter a valid hex code or color name.', 'danger')
         return redirect(url_for('home'))
 
-    # Ensure the color is properly formatted (e.g., RGB, hex, etc.)
+    # Ensure color format
     if color.startswith("rgb"):
-        color = tuple(map(int, color[4:-1].split(", ")))  # Convert "rgb(r, g, b)" to a tuple (r, g, b)
+        color = tuple(map(int, color[4:-1].split(", ")))
     elif color.startswith("#"):
-        color = color  # Hex color remains unchanged
+        color = color
     else:
-        color = color  # Named colors (like 'red', 'blue') remain unchanged
+        color = color
 
     # Generate QR code
     qr = qrcode.QRCode(
@@ -223,33 +227,34 @@ def generate_qr():
     qr.add_data(url)
     qr.make(fit=True)
 
-    # Use StyledPilImage with shape (circle, square, or triangle)
+    # Select module drawer based on shape
     if shape == "circle":
-        img = qr.make_image(
-            fill_color=color,  # Color is applied here
-            back_color="white",
-            image_factory=StyledPilImage,
-            module_drawer=CircleModuleDrawer(),
-            eye_drawer=SquareModuleDrawer()  # Square eyes for the circular QR
-        )
+        module_drawer = CircleModuleDrawer()
     elif shape == "triangle":
-        img = qr.make_image(
-            fill_color=color,  # Color is applied here
-            back_color="white",
-            image_factory=StyledPilImage,
-            module_drawer=TriangleModuleDrawer(),  # Triangle modules
-            eye_drawer=SquareModuleDrawer()  # Square eyes for the triangle QR
-        )
-    else:  # Default to square
-        img = qr.make_image(fill_color=color, back_color="white")
+        module_drawer = TriangleModuleDrawer()
+    else:
+        module_drawer = SquareModuleDrawer()
 
-    # Add image to the center if uploaded
+    img = qr.make_image(
+        fill_color=color,
+        back_color="white",
+        image_factory=StyledPilImage,
+        module_drawer=module_drawer
+    )
+
+    # Add image to QR code center if provided
     if image_file:
         img = add_image_to_qr(img, image_file)
 
     # Save QR image to file
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'qr_code.png')
-    img.save(file_path, format='PNG')
+    try:
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'qr_code.png')
+        img.save(file_path, format='PNG')
+        print(f"QR Code saved to {file_path}")
+    except Exception as e:
+        print(f"Error saving QR Code: {e}")
+        flash("Failed to generate QR Code. Please try again.", 'danger')
+        return redirect(url_for('home'))
 
     return send_file(file_path, mimetype='image/png', as_attachment=True)
 
