@@ -117,6 +117,51 @@ def signup():
         return redirect(url_for('login'))
     
     
+
+@app.route('/premium_signup', methods=['GET', 'POST'])
+def premium_signup():
+    if 'user' not in session:
+        flash('Please log in to access premium membership options.', 'warning')
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        membership_type = request.form.get('membership_type')
+
+        if membership_type not in ['monthly', 'annual']:
+            flash('Invalid membership type selected. Please try again.', 'danger')
+            return redirect(url_for('premium_signup'))
+
+        # Update user in the database with membership details
+        user_email = session['user']
+        mongo.db.users.update_one(
+            {'email': user_email},
+            {'$set': {
+                'is_premium': True,
+                'membership_type': membership_type,
+                'membership_start_date': datetime.now()
+            }}
+        )
+
+        flash(f'Successfully signed up for {membership_type} premium membership!', 'success')
+        return redirect(url_for('home'))
+
+    return render_template('premium_signup.html')
+
+@app.route('/premium')
+def premium():
+    if 'user' not in session:
+        flash('Please log in to access this page.', 'warning')
+        return redirect(url_for('login'))
+
+    user_email = session['user']
+    user = mongo.db.users.find_one({'email': user_email})
+
+    # Determine if user has a premium membership
+    is_premium = user.get('is_premium', False)
+    membership_type = user.get('membership_type', 'None')
+
+    return render_template('premium.html', is_premium=is_premium, membership_type=membership_type)
+
 @app.route('/some_protected_route')
 def some_protected_route():
     if 'user' in session:

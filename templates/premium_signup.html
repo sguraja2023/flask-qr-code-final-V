@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Signup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Sign Up for Premium Membership</h2>
+        <form method="POST" action="{{ url_for('premium_signup') }}">
+            <label>
+                <input type="radio" name="membership_type" value="monthly" required>
+                Monthly Membership ($10 per month)
+            </label>
+            <label>
+                <input type="radio" name="membership_type" value="annual" required>
+                Annual Membership ($100 per year)
+            </label>
+            <button type="submit" class="submit">Sign Up for Premium</button>
+        </form>
+        <a href="{{ url_for('home') }}">Back to Home</a>
+    </div>
+</body>
+</html>
