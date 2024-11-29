@@ -4,10 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium Features</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        img {
+            max-width: 40%; /* Smaller size */
+            height: auto;
+            margin-bottom: 20px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        a {
+            display: block;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
+        <!-- Logo -->
+        <img src="{{ url_for('static', filename='StyleQRNEWNEW.png') }}" alt="Style QR Logo">
+
         <h1>Premium Features</h1>
 
         <!-- QR Code Generator Form -->
@@ -34,32 +86,11 @@
             <input type="file" id="image" name="image" accept="image/*">
 
             <!-- Submit Button -->
-            <button type="submit" class="submit-btn">Generate QR Code</button>
+            <button type="submit">Generate QR Code</button>
         </form>
 
-        <!-- Premium Features Section -->
-        <div class="premium-section">
-            <h2>Advanced Premium Options</h2>
-            
-            <!-- RGB Color Picker -->
-            <label for="rgbColor">Pick a Custom RGB Color:</label>
-            <input type="color" id="rgbColor" name="rgbColor">
-        </div>
-
-        <!-- Back Button -->
-        <a href="{{ url_for('home') }}" class="back-btn">Back to Home</a>
+        <!-- Back to Home Button -->
+        <a href="{{ url_for('home') }}">Back to Home</a>
     </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-
-    <script>
-        // JavaScript to sync RGB color picker with the text color input
-        const rgbColorPicker = document.getElementById('rgbColor');
-        const colorInput = document.getElementById('color');
-
-        rgbColorPicker.addEventListener('input', function () {
-            colorInput.value = rgbColorPicker.value;
-        });
-    </script>
 </body>
 </html>

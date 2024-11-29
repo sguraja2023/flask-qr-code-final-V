@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Signup</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -50,15 +50,17 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome Back</h1>
-        <form method="POST" action="{{ url_for('login') }}">
+        <h1>Create Account</h1>
+        <form method="POST" action="{{ url_for('signup') }}">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
             <label for="email">Email</label>
-            <input type="email" id="email" name="username" required>
+            <input type="email" id="email" name="email" required>
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required>
-            <button type="submit">Log In</button>
+            <button type="submit">Sign Up</button>
         </form>
-        <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
+        <p>Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
     </div>
 </body>
 </html>
