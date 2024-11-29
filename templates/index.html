@@ -12,41 +12,40 @@
         <img src="{{ url_for('static', filename='StyleQRNEWNEW.png') }}" alt="Style QR" id="title-image" style="max-width: 180px; height: auto;">
 
         <form action="{{ url_for('generate_qr') }}" method="POST" enctype="multipart/form-data">
-            <label for="url">Enter URL:</label>
-            <input type="text" id="url" name="url" required>
+            <label for="url">
+                <span>Enter URL:</span>
+                <input type="text" id="url" name="url" required>
+            </label>
 
-            <label for="color">Choose Color:</label>
-            <input type="text" id="color" name="color" placeholder="e.g., red">
+            <label for="color">
+                <span>Choose Color:</span>
+                <input type="text" id="color" name="color" placeholder="e.g., red">
+            </label>
 
-            <label for="shape">Choose Shape Pattern:</label>
-            <select id="shape" name="shape">
-                <option value="square">Square</option>
-                <option value="circle">Circle</option>
-                <option value="triangle">Triangle</option>
-            </select>
+            <label for="shape">
+                <span>Choose Shape Pattern:</span>
+                <select id="shape" name="shape">
+                    <option value="square">Square</option>
+                    <option value="circle">Circle</option>
+                    <option value="triangle">Triangle</option>
+                </select>
+            </label>
 
-            <!-- Hidden Image Upload (Premium) -->
-            <label for="image" id="imageLabel" style="display:none;">Upload Image/Logo for Center (Premium):</label>
-            <input type="file" id="image" name="image" accept="image/png" style="display:none;">
+            {% if session.get('is_premium') %}
+                <label for="image">
+                    <span>Upload Image/Logo for Center (Premium):</span>
+                    <input type="file" id="image" name="image" accept="image/png">
+                </label>
+            {% endif %}
 
-            <button type="submit">Generate QR Code</button>
+            <button type="submit" class="submit">Generate QR Code</button>
         </form>
 
-        <!-- Premium Feature Button -->
-        <button id="premiumBtn">Sign Up for Premium Features</button>
-        <div id="premiumOptions" style="display:none;">
-            <!-- RGB Color Picker -->
-            <label for="rgbColor">Choose a Custom RGB Color:</label>
-            <input type="color" id="rgbColor" name="color" style="display:none;" onchange="updateColorValue(event)">
-            
-            <!-- Show Upload Image/Logo Button for Premium Users -->
-            <button type="button" id="uploadImageBtn" style="display:none;" onclick="triggerFileUpload()">Upload Image/Logo for Center</button>
-        </div>
-
-        <!-- Log Out Button -->
-        <button id="logoutBtn" onclick="window.location.href='{{ url_for('login') }}';" style="background-color: red;">Log Out</button> <!-- Updated button style -->
+        {% if not session.get('is_premium') %}
+            <button id="premiumBtn" onclick="window.location.href='{{ url_for('premium_signup') }}';">Sign Up for Premium Features</button>
+        {% endif %}
+        
+        <button onclick="window.location.href='{{ url_for('logout') }}';" style="background-color: red;">Log Out</button>
     </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

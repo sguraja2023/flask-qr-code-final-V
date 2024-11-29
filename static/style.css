@@ -323,15 +323,20 @@ input {
 }
 
 .cont.s--signup .sign-in {
-    transition-timing-function: ease-in-out;
-    transition-duration: 1.2s;
-    transform: translate3d(640px, 0, 0);
-}
-
-.sign-up {
-    transform: translate3d(-900px, 0, 0);
+    transform: translateX(640px);
+    transition: all 1.2s ease-in-out;
 }
 
 .cont.s--signup .sign-up {
-    transform: translate3d(0, 0, 0);
+    transform: translateX(0);
+    transition: all 1.2s ease-in-out;
+}
+
+.sign-in {
+    transition: all 1.2s ease-in-out;
+}
+
+.sign-up {
+    transform: translateX(-640px);
+    transition: all 1.2s ease-in-out;
 }
