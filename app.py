@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, make_response
 from flask_pymongo import PyMongo
 from flask_session import Session
-from datetime import datetime
+from datetime import datetime, timedelta
 import qrcode
 from PIL import Image
 from qrcode.image.styledpil import StyledPilImage
@@ -11,31 +11,34 @@ import re
 from urllib.parse import urlparse
 import matplotlib
 from dotenv import load_dotenv
-from datetime import timedelta
 
+# Load environment variables from .env
 load_dotenv()
 
 app = Flask(__name__)
 
-mongo_uri = os.getenv("MONGO_URI")
-print(f"MONGO_URI: {mongo_uri}")
+# MongoDB URI from environment variable
+app.config["MONGO_URI"] = os.getenv("MONGO_URI")
+
+# Initialize PyMongo
+mongo = PyMongo(app)
 
 # Secret key for session management
-app.secret_key = 'your_secret_key'
+app.secret_key = os.urandom(24)  # Generate a random secret key
 
 # Set the session lifetime
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
-# Use server-side session with Flask-Session
-app.config['SESSION_TYPE'] = 'filesystem'  # Use filesystem to store sessions
-app.config['SESSION_PERMANENT'] = False
-app.config['SESSION_USE_SIGNER'] = True
+# Configure Flask-Session to use MongoDB
+app.config['SESSION_TYPE'] = 'mongodb'           # Use MongoDB for storing session data
+app.config['SESSION_PERMANENT'] = False           # Sessions are not permanent
+app.config['SESSION_USE_SIGNER'] = True           # Use a signer to protect session data
+app.config['SESSION_MONGODB'] = mongo.cx          # Use PyMongo's connection for sessions
+app.config['SESSION_MONGODB_DB'] = 'sessions_db'  # Use a specific database for session data
+app.config['SESSION_MONGODB_COLLECT'] = 'sessions'  # Name of the collection to store sessions
+
+# Initialize Flask-Session
 Session(app)
-
-# MongoDB configuration
-app.config["MONGO_URI"] = os.getenv("MONGO_URI")
-
-mongo = PyMongo(app)
 
 # Directory to save generated QR codes
 UPLOAD_FOLDER = 'uploads'
@@ -61,8 +64,6 @@ def is_valid_hex_color(color):
 def is_valid_color_name(color):
     return color.lower() in matplotlib.colors.CSS4_COLORS
 
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -74,12 +75,6 @@ def login():
 
         # Find the user in MongoDB
         user = mongo.db.users.find_one({'email': username})
-
-        # Debugging step: Print what is fetched from the database
-        if user:
-            print(f"User found: {user}")
-        else:
-            print("No user found with that email.")
 
         # Check credentials
         if user and user['password'] == password:
@@ -107,16 +102,17 @@ def signup():
         # Add new user to the database
         user_data = {
             'name': name,
-            'email': email,  # Store email in lowercase
+            'email': email,
             'password': password,
-            'is_premium': False
+            'is_premium': False,
+            'membership_type': None
         }
         mongo.db.users.insert_one(user_data)
 
         flash('Signup successful! Please log in.', 'success')
         return redirect(url_for('login'))
     
-    
+    return render_template('signup.html')
 
 @app.route('/premium_signup', methods=['GET', 'POST'])
 def premium_signup():
@@ -147,8 +143,9 @@ def premium_signup():
 
     return render_template('premium_signup.html')
 
-@app.route('/premium')
-def premium():
+# Change the endpoint name to avoid collision
+@app.route('/view_premium')
+def view_premium():
     if 'user' not in session:
         flash('Please log in to access this page.', 'warning')
         return redirect(url_for('login'))
@@ -162,29 +159,25 @@ def premium():
 
     return render_template('premium.html', is_premium=is_premium, membership_type=membership_type)
 
-@app.route('/some_protected_route')
-def some_protected_route():
-    if 'user' in session:
-        print("Session user:", session['user'])
-    else:
-        print("No user in session.")
-    return render_template('some_template.html')
-
 @app.route('/logout')
 def logout():
     if 'user' in session:
         print("Logging out user:", session['user'])  # Debug print to see current user before clearing
         session.pop('user', None)  # Remove specific user session data
-        session.clear()  # Clears all session data from the server side
         flash('You have been logged out.', 'info')
     else:
         print("No user was in session.")  # Debug if no user was in session
         flash('You were not logged in.', 'warning')
 
-    # Clear session cookie
-    response = make_response(redirect(url_for('login')))
-    response.set_cookie('session', '', expires=0)  # Clear the session cookie from the browser
-    return response
+    # Redirect to login page
+    return redirect(url_for('login'))
+
+@app.route('/')
+def home():
+    if 'user' not in session:
+        flash('Please log in to access this page.', 'warning')
+        return redirect(url_for('login'))
+    return render_template('index.html')
 
 @app.after_request
 def add_header(response):
@@ -192,14 +185,6 @@ def add_header(response):
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
-
-# Route for homepage
-@app.route('/')
-def home():
-    if 'user' not in session:
-        flash('Please log in to access this page.', 'warning')
-        return redirect(url_for('login'))
-    return render_template('index.html')
 
 # Route for generating the QR code
 @app.route('/generate_qr', methods=['POST'])
