@@ -24,7 +24,7 @@
             max-width: 500px;
         }
         img {
-            max-width: 40%; /* Smaller size */
+            max-width: 40%;
             height: auto;
             margin-bottom: 20px;
         }
@@ -54,26 +54,42 @@
             text-decoration: underline;
         }
     </style>
+    <script>
+        function syncColorPicker() {
+            const colorPicker = document.getElementById('colorPicker');
+            const colorInput = document.getElementById('color');
+
+            colorPicker.addEventListener('input', () => {
+                colorInput.value = colorPicker.value;
+            });
+
+            colorInput.addEventListener('input', () => {
+                if (colorInput.value.startsWith('#') && colorInput.value.length === 7) {
+                    colorPicker.value = colorInput.value;
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', syncColorPicker);
+    </script>
 </head>
 <body>
     <div class="container">
-        <!-- Logo -->
         <img src="{{ url_for('static', filename='StyleQRNEWNEW.png') }}" alt="Style QR Logo">
 
         <h1>Premium Features</h1>
-
-        <!-- QR Code Generator Form -->
         <h2>Style Your QR Code</h2>
+
         <form action="{{ url_for('generate_qr') }}" method="POST" enctype="multipart/form-data">
-            <!-- URL Input -->
             <label for="url">Enter URL:</label>
             <input type="text" id="url" name="url" placeholder="https://example.com" required>
 
-            <!-- Color Input -->
             <label for="color">Choose Color (Hex or Name):</label>
-            <input type="text" id="color" name="color" placeholder="e.g., #000000 or red" required>
+            <input type="text" id="color" name="color" placeholder="e.g., #000000 or red">
 
-            <!-- Shape Selector -->
+            <label for="colorPicker">Choose Color (RGB):</label>
+            <input type="color" id="colorPicker" name="colorPicker" value="#000000">
+            
             <label for="shape">Choose Shape:</label>
             <select id="shape" name="shape">
                 <option value="square">Square</option>
@@ -81,15 +97,12 @@
                 <option value="triangle">Triangle</option>
             </select>
 
-            <!-- Image Upload -->
             <label for="image">Upload Image/Logo for Center (Optional):</label>
             <input type="file" id="image" name="image" accept="image/*">
 
-            <!-- Submit Button -->
             <button type="submit">Generate QR Code</button>
         </form>
 
-        <!-- Back to Home Button -->
         <a href="{{ url_for('home') }}">Back to Home</a>
     </div>
 </body>
