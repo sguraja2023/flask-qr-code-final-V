@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Features</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Premium Features</h1>
+
+        <!-- QR Code Generator Form -->
+        <h2>Style Your QR Code</h2>
+        <form action="{{ url_for('generate_qr') }}" method="POST" enctype="multipart/form-data">
+            <!-- URL Input -->
+            <label for="url">Enter URL:</label>
+            <input type="text" id="url" name="url" placeholder="https://example.com" required>
+
+            <!-- Color Input -->
+            <label for="color">Choose Color (Hex or Name):</label>
+            <input type="text" id="color" name="color" placeholder="e.g., #000000 or red" required>
+
+            <!-- Shape Selector -->
+            <label for="shape">Choose Shape:</label>
+            <select id="shape" name="shape">
+                <option value="square">Square</option>
+                <option value="circle">Circle</option>
+                <option value="triangle">Triangle</option>
+            </select>
+
+            <!-- Image Upload -->
+            <label for="image">Upload Image/Logo for Center (Optional):</label>
+            <input type="file" id="image" name="image" accept="image/*">
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-btn">Generate QR Code</button>
+        </form>
+
+        <!-- Premium Features Section -->
+        <div class="premium-section">
+            <h2>Advanced Premium Options</h2>
+            
+            <!-- RGB Color Picker -->
+            <label for="rgbColor">Pick a Custom RGB Color:</label>
+            <input type="color" id="rgbColor" name="rgbColor">
+        </div>
+
+        <!-- Back Button -->
+        <a href="{{ url_for('home') }}" class="back-btn">Back to Home</a>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <script>
+        // JavaScript to sync RGB color picker with the text color input
+        const rgbColorPicker = document.getElementById('rgbColor');
+        const colorInput = document.getElementById('color');
+
+        rgbColorPicker.addEventListener('input', function () {
+            colorInput.value = rgbColorPicker.value;
+        });
+    </script>
+</body>
+</html>

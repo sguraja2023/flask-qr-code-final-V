@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Style QR</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Message -->
+        <h1>Welcome, {{ session.get('user') }}!</h1>
+        <p>Your role: {{ session.get('role') }}</p>
+
+        <!-- Admin Dashboard Link -->
+        {% if session.get('role') == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}">
+            <button class="admin-btn">Go to Admin Dashboard</button>
+        </a>
+        {% endif %}
+
+
+        <!-- QR Code Generator Form -->
+        <h2>Style Your QR Code</h2>
+        <form action="{{ url_for('generate_qr') }}" method="POST" enctype="multipart/form-data">
+            <!-- URL Input -->
+            <label for="url">Enter URL:</label>
+            <input type="text" id="url" name="url" placeholder="https://example.com" required>
+
+            <!-- Color Input -->
+            <label for="color">Choose Color:</label>
+            <input type="text" id="color" name="color" placeholder="e.g., red">
+
+            <!-- Shape Selector -->
+            <label for="shape">Choose Shape:</label>
+            <select id="shape" name="shape">
+                <option value="square">Square</option>
+                <option value="circle">Circle</option>
+                <option value="triangle">Triangle</option>
+            </select>
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-btn">Generate QR Code</button>
+        </form>
+
+        <a href="{{ url_for('premium') }}">
+            <button class="premium-btn">Access Premium Features</button>
+        </a>
+        
+
+        <!-- Logout Button -->
+        <a href="{{ url_for('logout') }}" class="logout-btn">Log Out</a>
+    </div>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        h2 {
+            margin: 20px 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            text-align: left;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+
+        .admin-btn {
+            background-color: #f39c12;
+            color: white;
+            display: block;
+            margin: 10px 0;
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .admin-btn:hover {
+            background-color: #d35400;
+        }
+
+        .logout-btn {
+            margin-top: 20px;
+            display: inline-block;
+            width: 100%;
+            padding: 10px 0;
+            background-color: #dc3545;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background-color: #b82e39;
+        }
+    </style>
+
+    <script>
+        console.log("Role: {{ session.get('role') }}");
+    </script>
+</body>
+</html>

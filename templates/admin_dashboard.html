@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            margin: 2px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .reset-btn {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .role-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .premium-btn {
+            background-color: #8e44ad;
+            color: white;
+        }
+
+        .add-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .premium {
+            color: #8e44ad;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        <p>Welcome, Admin! Manage users below:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Premium</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role }}</td>
+                    <td class="{{ 'premium' if user.is_premium else '' }}">
+                        {{ 'Yes' if user.is_premium else 'No' }}
+                    </td>
+                    <td>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="delete_user">
+                            <input type="hidden" name="delete_email" value="{{ user.email }}">
+                            <button type="submit" class="action-btn delete-btn">Delete</button>
+                        </form>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="reset_password">
+                            <input type="hidden" name="reset_email" value="{{ user.email }}">
+                            <input type="text" name="new_password" placeholder="New Password" required>
+                            <button type="submit" class="action-btn reset-btn">Reset Password</button>
+                        </form>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="change_role">
+                            <input type="hidden" name="change_email" value="{{ user.email }}">
+                            <select name="new_role" required>
+                                <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                            </select>
+                            <button type="submit" class="action-btn role-btn">Change Role</button>
+                        </form>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="toggle_premium">
+                            <input type="hidden" name="premium_email" value="{{ user.email }}">
+                            <button type="submit" class="action-btn premium-btn">
+                                Toggle Premium
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Add New User</h2>
+        <form method="POST">
+            <input type="hidden" name="action" value="add_user">
+            <input type="email" name="new_email" placeholder="Email" required>
+            <input type="text" name="new_password" placeholder="Password" required>
+            <select name="new_role" required>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+            <label>
+                <input type="checkbox" name="is_premium"> Premium User
+            </label>
+            <button type="submit" class="action-btn add-btn">Add User</button>
+        </form>
+
+        <a href="{{ url_for('logout') }}">Log Out</a>
+    </div>
+</body>
+</html>
