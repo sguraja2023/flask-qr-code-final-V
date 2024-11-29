@@ -20,6 +20,20 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 8px;
+        }
+
+        .stats div {
+            text-align: center;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -83,8 +97,26 @@
 <body>
     <div class="container">
         <h1>Admin Dashboard</h1>
-        <p>Welcome, Admin! Manage users below:</p>
+        <p>Welcome, Admin! Here are the current stats:</p>
 
+        <!-- Stats Section -->
+        <div class="stats">
+            <div>
+                <h3>Total Users</h3>
+                <p>{{ total_users }}</p>
+            </div>
+            <div>
+                <h3>Premium Users</h3>
+                <p>{{ premium_users }}</p>
+            </div>
+            <div>
+                <h3>Monthly Revenue</h3>
+                <p>${{ monthly_revenue }}</p>
+            </div>
+        </div>
+
+        <!-- User Table -->
+        <p>Manage users below:</p>
         <table>
             <thead>
                 <tr>
@@ -136,6 +168,7 @@
             </tbody>
         </table>
 
+        <!-- Add User Section -->
         <h2>Add New User</h2>
         <form method="POST">
             <input type="hidden" name="action" value="add_user">
