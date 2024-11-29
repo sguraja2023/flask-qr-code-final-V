@@ -12,15 +12,41 @@ from urllib.parse import urlparse
 import matplotlib
 from dotenv import load_dotenv
 
+# Load environment variables from .env
 load_dotenv()
 
 app = Flask(__name__)
 
+# MongoDB URI from environment variable
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
+
+# Initialize PyMongo
+mongo = PyMongo(app)
+
+# Secret key for session management
 app.secret_key = os.urandom(24)  # Generate a random secret key
+
+# Set the session lifetime
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
-mongo = PyMongo(app)
+# Configure Flask-Session to use MongoDB
+app.config['SESSION_TYPE'] = 'mongodb'           # Use MongoDB for storing session data
+app.config['SESSION_PERMANENT'] = False           # Sessions are not permanent
+app.config['SESSION_USE_SIGNER'] = True           # Use a signer to protect session data
+app.config['SESSION_MONGODB'] = mongo.cx          # Use PyMongo's connection for sessions
+app.config['SESSION_MONGODB_DB'] = 'sessions_db'  # Use a specific database for session data
+app.config['SESSION_MONGODB_COLLECT'] = 'sessions'  # Name of the collection to store sessions
+
+# Initialize Flask-Session
+Session(app)
+
+# Directory to save generated QR codes
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure the upload folder exists
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 # URL validation function
 def is_valid_url(url):
@@ -50,7 +76,6 @@ def login():
         # Check credentials
         if user and user['password'] == password:
             session['user'] = username
-            session['is_premium'] = user.get('is_premium', False)
             session.permanent = True
             flash('Login successful!', 'success')
             return redirect(url_for('home'))
@@ -65,7 +90,6 @@ def signup():
         name = request.form.get('name')
         email = request.form.get('email').lower()
         password = request.form.get('password')
-        membership_type = request.form.get('membership_type', 'standard')
 
         # Check if the email already exists in the database
         if mongo.db.users.find_one({'email': email}):
@@ -77,19 +101,72 @@ def signup():
             'name': name,
             'email': email,
             'password': password,
-            'is_premium': membership_type == 'premium',
+            'is_premium': False,
+            'membership_type': None
         }
         mongo.db.users.insert_one(user_data)
 
         flash('Signup successful! Please log in.', 'success')
         return redirect(url_for('login'))
 
-    return render_template('login.html')
+    return render_template('signup.html')
+
+@app.route('/premium_signup', methods=['GET', 'POST'])
+def premium_signup():
+    if 'user' not in session:
+        flash('Please log in to access premium membership options.', 'warning')
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        membership_type = request.form.get('membership_type')
+
+        if membership_type not in ['monthly', 'annual']:
+            flash('Invalid membership type selected. Please try again.', 'danger')
+            return redirect(url_for('premium_signup'))
+
+        # Update user in the database with membership details
+        user_email = session['user']
+        mongo.db.users.update_one(
+            {'email': user_email},
+            {'$set': {
+                'is_premium': True,
+                'membership_type': membership_type,
+                'membership_start_date': datetime.now()
+            }}
+        )
+
+        flash(f'Successfully signed up for {membership_type} premium membership!', 'success')
+        return redirect(url_for('home'))
+
+    return render_template('premium_signup.html')
+
+# Change the endpoint name to avoid collision
+@app.route('/view_premium')
+def view_premium():
+    if 'user' not in session:
+        flash('Please log in to access this page.', 'warning')
+        return redirect(url_for('login'))
+
+    user_email = session['user']
+    user = mongo.db.users.find_one({'email': user_email})
+
+    # Determine if user has a premium membership
+    is_premium = user.get('is_premium', False)
+    membership_type = user.get('membership_type', 'None')
+
+    return render_template('premium.html', is_premium=is_premium, membership_type=membership_type)
 
 @app.route('/logout')
 def logout():
-    session.clear()
-    flash('You have been logged out.', 'info')
+    if 'user' in session:
+        print("Logging out user:", session['user'])  # Debug print to see current user before clearing
+        session.pop('user', None)  # Remove specific user session data
+        flash('You have been logged out.', 'info')
+    else:
+        print("No user was in session.")  # Debug if no user was in session
+        flash('You were not logged in.', 'warning')
+
+    # Redirect to login page
     return redirect(url_for('login'))
 
 @app.route('/')
@@ -97,8 +174,7 @@ def home():
     if 'user' not in session:
         flash('Please log in to access this page.', 'warning')
         return redirect(url_for('login'))
-    return render_template('index.html', is_premium=session.get('is_premium', False))
-
+    return render_template('index.html')
 
 @app.after_request
 def add_header(response):
