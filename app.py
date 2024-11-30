@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, make_response
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file
 import qrcode
 from PIL import Image
 from qrcode.image.styledpil import StyledPilImage
-from qrcode.image.styles.moduledrawers import CircleModuleDrawer, SquareModuleDrawer
+from qrcode.image.styles.moduledrawers import CircleModuleDrawer
 import os
 import re
 from urllib.parse import urlparse
@@ -111,11 +111,11 @@ def generate_qr():
 
     if not is_valid_url(url):
         flash('Invalid URL. Please provide a valid URL.', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('premium'))
 
     if not (is_valid_hex_color(color) or is_valid_color_name(color)):
         flash('Invalid color. Please enter a valid hex code or color name.', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('premium'))
 
     qr = qrcode.QRCode(
         version=1, box_size=10, border=4, error_correction=qrcode.constants.ERROR_CORRECT_H
@@ -136,9 +136,16 @@ def generate_qr():
     if image_file and image_file.filename != '':
         img = add_image_to_qr(img, image_file)
 
+    # Mark user as premium in USER_DATA
+    current_user = session['user']
+    if current_user in USER_DATA:
+        USER_DATA[current_user]['is_premium'] = True
+
+    # Save QR code
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'qr_code.png')
     img.save(file_path, format='PNG')
 
+    flash('QR Code generated successfully! You are now marked as a premium user.', 'success')
     return send_file(file_path, mimetype='image/png', as_attachment=True)
 
 def add_image_to_qr(qr_image, image_file):
