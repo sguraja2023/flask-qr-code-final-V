@@ -7,38 +7,61 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Arial', sans-serif;
+            background-color: #EAF4F8; /* Matches the light blue in your logo */
+            margin: 0;
+            padding: 0;
         }
 
         .container {
             max-width: 800px;
-            margin: auto;
+            margin: 50px auto;
             background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border: 5px solid #B7E3E4; /* Adds a complementary border */
+        }
+
+        h1 {
+            text-align: center;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555555;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
         .stats {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
-            padding: 10px;
+            margin-bottom: 30px;
+            padding: 15px;
             background-color: #3498db;
             color: white;
-            border-radius: 8px;
+            border-radius: 15px;
         }
 
         .stats div {
             text-align: center;
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .stats div h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
-            font-size: 0.9em;
+            font-size: 16px;
         }
 
         table, th, td {
@@ -46,7 +69,7 @@
         }
 
         th, td {
-            padding: 10px;
+            padding: 12px;
             text-align: center;
         }
 
@@ -58,6 +81,19 @@
         .premium {
             color: #8e44ad;
             font-weight: bold;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-align: center;
+            color: #007BFF;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
