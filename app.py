@@ -153,7 +153,7 @@ def add_image_to_qr(qr_image, image_file):
     qr_width, qr_height = qr_image.size
 
     # Increased size of overlay to make it larger on the QR code
-    overlay_size = int(qr_width * 0.3)  # Changed from 0.2 to 0.3
+    overlay_size = int(qr_width * 0.3)
     overlay = overlay.resize((overlay_size, overlay_size), Image.Resampling.LANCZOS)
 
     position = ((qr_width - overlay.width) // 2, (qr_height - overlay.height) // 2)
@@ -172,7 +172,10 @@ def admin_dashboard():
     ]
     total_users = len(users)
     premium_users = sum(1 for user in users if user["is_premium"])
-    monthly_revenue = premium_users * 10
+    
+    # Update premium subscription price here
+    premium_price = 3  # Changed from $10 to $3
+    monthly_revenue = premium_users * premium_price
 
     return render_template(
         'admin_dashboard.html',
