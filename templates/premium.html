@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Features</title>
+    <title>Premium</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,7 +26,7 @@
         img {
             max-width: 40%;
             height: auto;
-            margin-bottom: 20px;
+            margin-bottom: 50px; /* Increased margin to move logo down */
         }
         input, select, button {
             width: 100%;
@@ -76,9 +76,6 @@
 <body>
     <div class="container">
         <img src="{{ url_for('static', filename='StyleQRNEWNEW.png') }}" alt="Style QR Logo">
-
-        <h1>Premium Features</h1>
-        <h2>Style Your QR Code</h2>
 
         <form action="{{ url_for('generate_qr') }}" method="POST" enctype="multipart/form-data">
             <label for="url">Enter URL:</label>
