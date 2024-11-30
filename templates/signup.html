@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup</title>
+    <title>Sign Up</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Arial', sans-serif;
+            background-color: #EAF4F8; /* Matches the light blue in your logo */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -16,35 +16,51 @@
         }
         .container {
             text-align: center;
-            background-color: #ffffff;
+            background-color: #FFFFFF;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
+            border: 5px solid #B7E3E4; /* Adds a border that complements the logo colors */
+        }
+        h1 {
+            font-size: 24px;
+            color: #333333;
+            margin-bottom: 20px;
         }
         input, button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border: 1px solid #CCCCCC;
+            border-radius: 10px;
+            font-size: 16px;
         }
         button {
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #45A049;
         }
         a {
-            color: #007bff;
+            color: #007BFF;
             text-decoration: none;
+            font-size: 14px;
         }
         a:hover {
             text-decoration: underline;
+        }
+        label {
+            display: block;
+            text-align: left;
+            margin: 5px 0;
+            color: #333333;
+            font-weight: bold;
         }
     </style>
 </head>
