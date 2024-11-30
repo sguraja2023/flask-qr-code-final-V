@@ -5,12 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Style QR</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #EAF4F8; /* Matches the light blue in your logo */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border: 5px solid #B7E3E4; /* Adds a complementary border */
+            position: relative;
+        }
+
+        img {
+            margin-top: 20px; /* Moves the logo down slightly */
+            max-width: 60%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            text-align: left;
+            color: #333333;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #cccccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+
+        .premium-btn {
+            background-color: #007bff;
+            color: white;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .premium-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .logout-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 12px 0;
+            background-color: #dc3545;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background-color: #b82e39;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <!-- Logo -->
-        <img src="{{ url_for('static', filename='StyleQRNEWNEW.png') }}" alt="Style QR Logo" 
-             style="max-width: 60%; height: auto; margin-bottom: 20px;">
+        <img src="{{ url_for('static', filename='StyleQRNEWNEW.png') }}" alt="Style QR Logo">
 
         <!-- QR Code Generator Form -->
         <form action="{{ url_for('generate_qr') }}" method="POST" enctype="multipart/form-data">
@@ -26,7 +117,7 @@
             <label for="shape">Choose Data Pattern:</label>
             <select id="shape" name="shape">
                 <option value="square">Square</option>
-                <option value="circle">Circle</option>
+                <option value="circle">Circle (Black only available)</option>
             </select>
 
             <!-- Submit Button -->
@@ -39,86 +130,5 @@
 
         <a href="{{ url_for('logout') }}" class="logout-btn">Log Out</a>
     </div>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            text-align: center;
-        }
-
-        label {
-            display: block;
-            margin: 10px 0 5px;
-            text-align: left;
-            color: #333;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .submit-btn {
-            background-color: #28a745;
-            color: white;
-            width: 100%;
-        }
-
-        .submit-btn:hover {
-            background-color: #218838;
-        }
-
-        .premium-btn {
-            background-color: #007bff;
-            color: white;
-            width: 100%;
-            margin: 15px 0;
-        }
-
-        .premium-btn:hover {
-            background-color: #0056b3;
-        }
-
-        .logout-btn {
-            margin-top: 20px;
-            display: inline-block;
-            width: 100%;
-            padding: 10px 0;
-            background-color: #dc3545;
-            color: white;
-            text-align: center;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-
-        .logout-btn:hover {
-            background-color: #b82e39;
-        }
-    </style>
 </body>
 </html>
