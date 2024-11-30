@@ -7,49 +7,83 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background-color: #EAF4F8; /* Matches the light blue in your logo */
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Align items at the top with padding */
             height: 100vh;
             margin: 0;
+            padding-top: 20px; /* Ensures space above the logo */
         }
+
         .container {
-            text-align: center;
-            background-color: #ffffff;
+            background: #ffffff;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 500px;
+            max-width: 400px;
+            text-align: center;
+            border: 5px solid #B7E3E4; /* Adds a complementary border */
+            position: relative;
         }
+
         img {
-            max-width: 40%;
+            margin-top: 0; /* No additional margin needed with body padding */
+            max-width: 60%; /* Keeps the size consistent */
             height: auto;
-            margin-bottom: 50px; /* Increased margin to move logo down */
+            margin-bottom: 20px;
         }
-        input, select, button {
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            text-align: left;
+            color: #333333;
+            font-weight: bold;
+        }
+
+        input, select {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #cccccc;
+            border-radius: 8px;
+            font-size: 16px;
         }
+
+        input[type="color"] {
+            height: 40px;
+            padding: 0;
+        }
+
         button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button.submit-btn {
             background-color: #4CAF50;
             color: white;
-            border: none;
-            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
         }
-        button:hover {
-            background-color: #45a049;
+
+        button.submit-btn:hover {
+            background-color: #45A049;
         }
+
         a {
             display: block;
             margin-top: 20px;
-            color: #007bff;
+            color: #007BFF;
             text-decoration: none;
+            font-size: 16px;
         }
+
         a:hover {
             text-decoration: underline;
         }
@@ -75,28 +109,29 @@
 </head>
 <body>
     <div class="container">
+        <!-- Logo -->
         <img src="{{ url_for('static', filename='StyleQRNEWNEW.png') }}" alt="Style QR Logo">
 
         <form action="{{ url_for('generate_qr') }}" method="POST" enctype="multipart/form-data">
             <label for="url">Enter URL:</label>
             <input type="text" id="url" name="url" placeholder="https://example.com" required>
 
-            <label for="color">Choose Color (Hex or Name):</label>
-            <input type="text" id="color" name="color" placeholder="e.g., #000000 or red">
+            <label for="color">Choose Color:</label>
+            <input type="text" id="color" name="color" placeholder="e.g., red">
 
-            <label for="colorPicker">Choose Color (RGB):</label>
+            <label for="colorPicker">Choose Color:</label>
             <input type="color" id="colorPicker" name="colorPicker" value="#000000">
             
             <label for="shape">Choose Data Pattern:</label>
             <select id="shape" name="shape">
                 <option value="square">Square</option>
-                <option value="circle">Circle</option>
+                <option value="circle">Circle (Black only available)</option>
             </select>
 
-            <label for="image">Upload Image/Logo for Center (Optional):</label>
+            <label for="image">Upload Image/Logo:</label>
             <input type="file" id="image" name="image" accept="image/*">
 
-            <button type="submit">Generate QR Code</button>
+            <button type="submit" class="submit-btn">Generate QR Code</button>
         </form>
 
         <a href="{{ url_for('home') }}">Back to Home</a>
