@@ -14,7 +14,7 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
 # Directory to save generated QR codes
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Ensure the upload folder exists
@@ -78,7 +78,7 @@ def signup():
             flash('Email is already registered. Please log in.', 'warning')
             return redirect(url_for('login'))
 
-        USER_DATA[email] = {"password": password, "role": "user"}
+        USER_DATA[email] = {"password": password, "role": "user", "is_premium": False}
         flash('Signup successful! Please log in.', 'success')
         return redirect(url_for('login'))
 
@@ -136,23 +136,45 @@ def generate_qr():
     if image_file and image_file.filename != '':
         img = add_image_to_qr(img, image_file)
 
-    # Mark user as premium in USER_DATA
-    current_user = session['user']
-    if current_user in USER_DATA:
-        USER_DATA[current_user]['is_premium'] = True
-
     # Save QR code
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'qr_code.png')
+    filename = 'qr_code.png'
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     img.save(file_path, format='PNG')
 
+    # Update user's premium status
+    current_user = session.get('user')
+    if current_user and current_user in USER_DATA:
+        USER_DATA[current_user]['is_premium'] = True
+
     flash('QR Code generated successfully! You are now marked as a premium user.', 'success')
-    return send_file(file_path, mimetype='image/png', as_attachment=True)
+    return redirect(url_for('display_qr', filename=filename))
+
+@app.route('/display_qr/<filename>')
+def display_qr(filename):
+    if 'user' not in session:
+        flash('Please log in to access this feature.', 'warning')
+        return redirect(url_for('login'))
+    
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if not os.path.exists(file_path):
+        flash('QR Code not found.', 'danger')
+        return redirect(url_for('premium'))
+
+    return render_template('display_qr.html', filename=filename)
+
+@app.route('/download/<filename>')
+def download_file(filename):
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if os.path.exists(file_path):
+        return send_file(file_path, as_attachment=True)
+    else:
+        flash('File not found.', 'danger')
+        return redirect(url_for('home'))
 
 def add_image_to_qr(qr_image, image_file):
     overlay = Image.open(image_file).convert("RGBA")
     qr_width, qr_height = qr_image.size
 
-    # Increased size of overlay to make it larger on the QR code
     overlay_size = int(qr_width * 0.3)
     overlay = overlay.resize((overlay_size, overlay_size), Image.Resampling.LANCZOS)
 
@@ -172,9 +194,7 @@ def admin_dashboard():
     ]
     total_users = len(users)
     premium_users = sum(1 for user in users if user["is_premium"])
-    
-    # Update premium subscription price here
-    premium_price = 3  # Changed from $10 to $3
+    premium_price = 3
     monthly_revenue = premium_users * premium_price
 
     return render_template(
