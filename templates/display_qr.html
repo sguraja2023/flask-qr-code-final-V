@@ -7,52 +7,73 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background-color: #EAF4F8; /* Matches the light blue in your logo */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
         }
+
         .container {
             text-align: center;
             background-color: #ffffff;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            border: 5px solid #B7E3E4; /* Adds a complementary border */
         }
-        img {
-            max-width: 300px;
-            height: auto;
+
+        h1 {
+            color: #333333;
+            font-size: 24px;
             margin-bottom: 20px;
         }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border: 2px solid #cccccc; /* Optional styling for QR code image */
+            border-radius: 10px; /* Rounded edges for QR code */
+        }
+
         button {
-            padding: 10px 20px;
+            padding: 12px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             margin: 10px;
+            font-size: 16px;
         }
+
         button:hover {
-            background-color: #45a049;
+            background-color: #45A049;
         }
+
         a {
             text-decoration: none;
             color: white;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Your QR Code</h1>
+        <!-- Display the generated QR code -->
         <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Generated QR Code">
         <br>
+        <!-- Download QR Code Button -->
         <button>
             <a href="{{ url_for('download_file', filename=filename) }}">Download QR Code</a>
         </button>
         <br>
+        <!-- Back Home Button -->
         <button>
             <a href="{{ url_for('home') }}">Back Home</a>
         </button>
