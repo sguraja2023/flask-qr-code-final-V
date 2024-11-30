@@ -43,6 +43,12 @@ def is_valid_hex_color(color):
 def is_valid_color_name(color):
     return color.lower() in matplotlib.colors.CSS4_COLORS
 
+@app.route('/')
+def index():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    return redirect(url_for('home'))
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -91,7 +97,7 @@ def logout():
         flash('You have been logged out.', 'info')
     return redirect(url_for('login'))
 
-@app.route('/')
+@app.route('/home')
 def home():
     if 'user' not in session:
         flash('Please log in to access this page.', 'warning')
