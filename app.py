@@ -120,7 +120,7 @@ def generate_qr():
         return redirect(url_for('login'))
 
     url = request.form['url']
-    color = request.form.get('color', 'black')
+    color = request.form.get('color', '').strip().lower()  # Get color input and sanitize it
     shape = request.form.get('shape', 'square')
     image_file = request.files.get('image', None)
 
@@ -129,10 +129,9 @@ def generate_qr():
         flash('Invalid URL. Please provide a valid URL.', 'danger')
         return redirect(request.referrer)
 
-    # Validate the color
-    if not (is_valid_hex_color(color) or is_valid_color_name(color)):
-        flash('Invalid color. Please enter a valid hex code or color name.', 'danger')
-        return redirect(request.referrer)
+    # Default color to black if invalid or not provided
+    if not color or not (is_valid_hex_color(color) or is_valid_color_name(color)):
+        color = 'black'
 
     # Create the QR Code
     qr = qrcode.QRCode(
@@ -186,15 +185,22 @@ def download_file(filename):
         return redirect(url_for('home'))
 
 def add_image_to_qr(qr_image, image_file):
+    # Open the overlay image
     overlay = Image.open(image_file).convert("RGBA")
     qr_width, qr_height = qr_image.size
 
+    # Resize the overlay image to fit inside the QR code
     overlay_size = int(qr_width * 0.3)
     overlay = overlay.resize((overlay_size, overlay_size), Image.Resampling.LANCZOS)
 
+    # Position the overlay image at the center of the QR code
     position = ((qr_width - overlay.width) // 2, (qr_height - overlay.height) // 2)
-    qr_image.paste(overlay, position, overlay)
-    return qr_image
+
+    # Ensure QR code remains black while overlay retains its colors
+    qr_image_with_overlay = qr_image.convert("RGBA")
+    qr_image_with_overlay.paste(overlay, position, overlay)
+
+    return qr_image_with_overlay
 
 @app.route('/admin', methods=['GET'])
 def admin_dashboard():
