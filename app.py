@@ -45,6 +45,7 @@ def is_valid_color_name(color):
 
 @app.route('/')
 def index():
+    # Redirect to login if the user is not logged in
     if 'user' not in session:
         return redirect(url_for('login'))
     return redirect(url_for('home'))
@@ -115,14 +116,17 @@ def generate_qr():
     shape = request.form.get('shape', 'square')
     image_file = request.files.get('image', None)
 
+    # Validate the URL
     if not is_valid_url(url):
         flash('Invalid URL. Please provide a valid URL.', 'danger')
-        return redirect(url_for('premium'))
+        return redirect(request.referrer)
 
+    # Validate the color
     if not (is_valid_hex_color(color) or is_valid_color_name(color)):
         flash('Invalid color. Please enter a valid hex code or color name.', 'danger')
-        return redirect(url_for('premium'))
+        return redirect(request.referrer)
 
+    # Create the QR Code
     qr = qrcode.QRCode(
         version=1, box_size=10, border=4, error_correction=qrcode.constants.ERROR_CORRECT_H
     )
@@ -139,20 +143,21 @@ def generate_qr():
     else:
         img = qr.make_image(fill_color=color, back_color="white")
 
+    # Add overlay image if provided
     if image_file and image_file.filename != '':
         img = add_image_to_qr(img, image_file)
 
-    # Save QR code
+    # Save the QR code
     filename = 'qr_code.png'
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     img.save(file_path, format='PNG')
 
-    # Update user's premium status
+    # Update user's premium status only if not already premium
     current_user = session.get('user')
     if current_user and current_user in USER_DATA:
         USER_DATA[current_user]['is_premium'] = True
 
-    flash('QR Code generated successfully! You are now marked as a premium user.', 'success')
+    flash('QR Code generated successfully!', 'success')
     return redirect(url_for('display_qr', filename=filename))
 
 @app.route('/display_qr/<filename>')
@@ -164,7 +169,7 @@ def display_qr(filename):
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if not os.path.exists(file_path):
         flash('QR Code not found.', 'danger')
-        return redirect(url_for('premium'))
+        return redirect(url_for('home'))
 
     return render_template('display_qr.html', filename=filename)
 
