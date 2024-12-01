@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file
 import qrcode
-from PIL import Image
+from PIL import Image, ImageDraw, ImageColor, ImageOps
 from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.moduledrawers import CircleModuleDrawer
 import os
@@ -124,9 +124,10 @@ def generate_qr():
     # Get form data
     url = request.form['url']
     color = request.form.get('color', '').strip().lower()
+    gradient_color = request.form.get('gradient', 'none')
     background_color = request.form.get('background_color', 'white').strip().lower()
     shape = request.form.get('shape', 'square')
-    size = request.form.get('size', 'standard').lower()  # Get the selected size
+    size = request.form.get('size', 'standard').lower()
     image_file = request.files.get('image', None)
 
     # Validate URL
@@ -134,23 +135,41 @@ def generate_qr():
         flash('Invalid URL. Please provide a valid URL.', 'danger')
         return redirect(request.referrer)
 
-    # Validate QR code color
-    if not color or not (is_valid_hex_color(color) or is_valid_color_name(color)):
-        color = 'black'
+    # Handle circle pattern: Ignore all except image and size
+    if shape == "circle":
+        fill_color = "black"
+        gradient_color = None
+        background_color = "white"
+        gradient_colors = None
 
-    # Validate background color
-    if background_color not in ['white', 'gray', 'black']:
-        flash('Invalid background color selected. Please choose a valid option.', 'danger')
-        return redirect(request.referrer)
+    else:
+        # Handle gradient: Gradient ignores background color
+        if gradient_color != "none":
+            background_color = "white"  # Default background to white if gradient is selected
+
+        # Validate colors
+        if not color or not (is_valid_hex_color(color) or is_valid_color_name(color)):
+            color = 'black'
+
+        # Define gradient colors
+        gradient_mapping = {
+            "red-yellow": ["#FF0000", "#FFFF00"],
+            "blue-green": ["#0000FF", "#00FF00"],
+            "purple-pink": ["#800080", "#FFC0CB"],
+            "orange-teal": ["#FFA500", "#008080"],
+            "black-white": ["#000000", "#FFFFFF"]
+        }
+        gradient_colors = gradient_mapping.get(gradient_color, None)
+        fill_color = color
 
     # Map size options to box sizes
     size_mapping = {
-        'small': 5,       # Smallest size
-        'standard': 10,   # Standard and medium are the same
+        'small': 5,
+        'standard': 10,
         'medium': 10,
-        'large': 20       # Larger size for 'large'
+        'large': 20
     }
-    box_size = size_mapping.get(size, 10)  # Default to 'standard' if size is invalid
+    box_size = size_mapping.get(size, 10)
 
     # Create QR Code
     qr = qrcode.QRCode(
@@ -159,16 +178,18 @@ def generate_qr():
     qr.add_data(url)
     qr.make(fit=True)
 
-    # Generate QR code
-    if shape == "circle":
+    # Generate the QR code with gradient or solid fill
+    if gradient_colors:
+        img = create_gradient_qr(qr, gradient_colors, background_color, shape)
+    elif shape == "circle":
         img = qr.make_image(
-            fill_color=color,
+            fill_color=fill_color,
             back_color=background_color,
             image_factory=StyledPilImage,
             module_drawer=CircleModuleDrawer()
         )
     else:
-        img = qr.make_image(fill_color=color, back_color=background_color)
+        img = qr.make_image(fill_color=fill_color, back_color=background_color)
 
     img = img.convert("RGBA")
 
@@ -206,6 +227,45 @@ def download_file(filename):
     else:
         flash('File not found.', 'danger')
         return redirect(url_for('home'))
+
+def create_gradient_qr(qr, gradient_colors, background_color, shape):
+    """
+    Create a QR code with a gradient fill applied only to the data modules.
+    Supports square and circle shapes.
+    """
+    qr_image = qr.make_image(fill_color="black", back_color=background_color).convert("RGBA")
+    qr_width, qr_height = qr_image.size
+
+    gradient = Image.new("RGBA", (qr_width, qr_height))
+    draw = ImageDraw.Draw(gradient)
+
+    for y in range(qr_height):
+        ratio = y / qr_height
+        r1, g1, b1 = ImageColor.getrgb(gradient_colors[0])
+        r2, g2, b2 = ImageColor.getrgb(gradient_colors[1])
+        r = int(r1 + (r2 - r1) * ratio)
+        g = int(g1 + (g2 - g1) * ratio)
+        b = int(b1 + (b2 - b1) * ratio)
+        draw.line([(0, y), (qr_width, y)], fill=(r, g, b))
+
+    gradient_qr = Image.new("RGBA", (qr_width, qr_height))
+    for x in range(qr_width):
+        for y in range(qr_height):
+            pixel = qr_image.getpixel((x, y))
+            if pixel[0] == 0:  # Black modules of the QR code
+                gradient_pixel = gradient.getpixel((x, y))
+                gradient_qr.putpixel((x, y), gradient_pixel)
+            else:
+                gradient_qr.putpixel((x, y), (255, 255, 255, 0))  # Transparent for white modules
+
+    if shape == "circle":
+        mask = Image.new("L", (qr_width, qr_height), 0)
+        draw = ImageDraw.Draw(mask)
+        draw.ellipse([(0, 0), (qr_width, qr_height)], fill=255)
+        gradient_qr = ImageOps.fit(gradient_qr, mask.size, centering=(0.5, 0.5))
+        gradient_qr.putalpha(mask)
+
+    return gradient_qr
 
 def add_image_to_qr(qr_image, image_file):
     overlay = Image.open(image_file).convert("RGBA")

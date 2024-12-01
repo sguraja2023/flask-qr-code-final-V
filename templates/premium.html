@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium</title>
     <style>
-        /* Make sure the gradient spans the entire page smoothly */
         html, body {
             height: 100%;
             margin: 0;
@@ -95,6 +94,7 @@
         }
     </style>
     <script>
+        // Synchronize color picker with the input field
         function syncColorPicker() {
             const primaryColorInput = document.getElementById('color');
             const colorPicker = document.getElementById('colorPicker');
@@ -127,7 +127,17 @@
             <input type="text" id="color" name="color" placeholder="e.g., red or #FF5733">
             
             <label for="colorPicker">Pick QR Code Color:</label>
-            <input type="color" id="colorPicker" name="colorPicker" value="#000000">
+            <input type="color" id="colorPicker" name="colorPicker">
+
+            <label for="gradient">Gradient Color Picker (Only available for square patterns with white background):</label>
+            <select id="gradient" name="gradient">
+                <option value="none" selected>None</option>
+                <option value="red-yellow">Red to Yellow</option>
+                <option value="blue-green">Blue to Green</option>
+                <option value="purple-pink">Purple to Pink</option>
+                <option value="orange-teal">Orange to Teal</option>
+                <option value="black-white">Black to White</option>
+            </select>
 
             <label for="shape">Choose Data Pattern:</label>
             <select id="shape" name="shape">
