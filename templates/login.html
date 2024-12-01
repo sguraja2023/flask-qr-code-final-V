@@ -24,10 +24,21 @@
             max-width: 400px;
             border: 5px solid #B7E3E4; /* Adds a border that complements the logo colors */
         }
-        h1 {
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 5px; /* Reduced gap between text and logo */
+        }
+        .header h1 {
             font-size: 24px;
             color: #333333;
-            margin-bottom: 20px;
+            margin: 0;
+        }
+        .header img {
+            max-height: 90px; /* Increased height */
+            max-width: 90px; /* Increased width */
         }
         input, button {
             width: 100%;
@@ -66,7 +77,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Style QR</h1>
+        <div class="header">
+            <h1>Welcome to Style QR</h1>
+            <img src="{{ url_for('static', filename='StyleQRNEWNEW.png') }}" alt="Style QR Logo">
+        </div>
         <form method="POST" action="{{ url_for('login') }}">
             <label for="email">Email</label>
             <input type="email" id="email" name="username" required>
