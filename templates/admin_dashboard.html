@@ -4,36 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #EAF4F8; /* Matches the light blue in your logo */
+            background: linear-gradient(
+                135deg, 
+                #eaf4f8, #ffb6c1, #d1c4e9, #b7e3e4, 
+                #fff9c4, #ffcdd2, #c8f7c5, #ff8a80
+            );
+            background-size: 400% 400%;
+            animation: gradientAnimation 10s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 0;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .container {
-            max-width: 800px;
-            margin: 50px auto;
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            border: 5px solid #B7E3E4; /* Adds a complementary border */
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            border: 5px solid #b7e3e4;
         }
 
         h1 {
-            text-align: center;
             color: #333333;
+            font-size: 26px;
             margin-bottom: 20px;
         }
 
         p {
             font-size: 16px;
             color: #555555;
-            margin-bottom: 20px;
-            text-align: center;
+            margin-bottom: 30px;
         }
 
         .stats {
@@ -41,9 +55,9 @@
             justify-content: space-between;
             margin-bottom: 30px;
             padding: 15px;
-            background-color: #3498db;
-            color: white;
-            border-radius: 15px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            border-radius: 10px;
+            color: #333333;
         }
 
         .stats div {
@@ -55,6 +69,7 @@
         .stats div h3 {
             margin: 0 0 10px;
             font-size: 18px;
+            color: #333333;
         }
 
         table {
@@ -62,10 +77,11 @@
             border-collapse: collapse;
             margin: 20px 0;
             font-size: 16px;
+            background: rgba(255, 255, 255, 0.8);
         }
 
         table, th, td {
-            border: 1px solid #ddd;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         th, td {
@@ -74,12 +90,12 @@
         }
 
         th {
-            background-color: #3498db;
-            color: white;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: #333333;
         }
 
         .premium {
-            color: #8e44ad;
+            color: #ff8a80;
             font-weight: bold;
         }
 

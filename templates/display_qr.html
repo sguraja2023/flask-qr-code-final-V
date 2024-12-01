@@ -7,7 +7,13 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #EAF4F8;
+            background: linear-gradient(
+                135deg, 
+                #eaf4f8, #ffb6c1, #d1c4e9, #b7e3e4, 
+                #fff9c4, #ffcdd2, #c8f7c5, #ff8a80
+            );
+            background-size: 400% 400%; /* Make the gradient dynamic */
+            animation: gradientAnimation 10s ease infinite; /* Animate the gradient */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -15,46 +21,53 @@
             margin: 0;
         }
 
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .container {
             text-align: center;
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            width: 90%; /* Adjusted for larger QR codes */
-            max-width: 600px; /* Increased max-width */
-            border: 5px solid #B7E3E4;
-            overflow: hidden; /* Ensure large content doesn't overflow */
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            width: 90%; 
+            max-width: 600px;
+            border: 5px solid #b7e3e4;
         }
 
         h1 {
             color: #333333;
-            font-size: 24px;
+            font-size: 26px;
             margin-bottom: 20px;
         }
 
         img {
             display: block;
-            max-width: 100%; /* Ensures the image scales within the container */
+            max-width: 100%; 
             height: auto;
-            margin: 0 auto 20px auto; /* Centers the QR code and adds spacing */
+            margin: 0 auto 20px auto; 
             border: 2px solid #cccccc;
             border-radius: 10px;
         }
 
         button {
             padding: 12px 20px;
-            background-color: #4CAF50;
+            background: linear-gradient(90deg, #4CAF50, #007BFF, #FF5722);
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             margin: 10px;
             font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         button:hover {
-            background-color: #45A049;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         a {
