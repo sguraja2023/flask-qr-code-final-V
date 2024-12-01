@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #EAF4F8; /* Matches the light blue in your logo */
+            background-color: #EAF4F8;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -21,9 +21,10 @@
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            border: 5px solid #B7E3E4; /* Adds a complementary border */
+            width: 90%; /* Adjusted for larger QR codes */
+            max-width: 600px; /* Increased max-width */
+            border: 5px solid #B7E3E4;
+            overflow: hidden; /* Ensure large content doesn't overflow */
         }
 
         h1 {
@@ -33,11 +34,12 @@
         }
 
         img {
-            max-width: 100%;
+            display: block;
+            max-width: 100%; /* Ensures the image scales within the container */
             height: auto;
-            margin-bottom: 20px;
-            border: 2px solid #cccccc; /* Optional styling for QR code image */
-            border-radius: 10px; /* Rounded edges for QR code */
+            margin: 0 auto 20px auto; /* Centers the QR code and adds spacing */
+            border: 2px solid #cccccc;
+            border-radius: 10px;
         }
 
         button {
@@ -65,8 +67,8 @@
 <body>
     <div class="container">
         <h1>Your QR Code</h1>
-        <!-- Display the generated QR code -->
-        <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Generated QR Code">
+        <!-- Display the generated QR code with cache-busting query string -->
+        <img src="{{ url_for('static', filename='uploads/' + filename) }}?v={{ timestamp }}" alt="Generated QR Code">
         <br>
         <!-- Download QR Code Button -->
         <button>

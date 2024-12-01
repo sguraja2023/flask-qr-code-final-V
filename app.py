@@ -126,6 +126,7 @@ def generate_qr():
     color = request.form.get('color', '').strip().lower()
     background_color = request.form.get('background_color', 'white').strip().lower()
     shape = request.form.get('shape', 'square')
+    size = request.form.get('size', 'standard').lower()  # Get the selected size
     image_file = request.files.get('image', None)
 
     # Validate URL
@@ -142,9 +143,18 @@ def generate_qr():
         flash('Invalid background color selected. Please choose a valid option.', 'danger')
         return redirect(request.referrer)
 
+    # Map size options to box sizes
+    size_mapping = {
+        'small': 5,       # Smallest size
+        'standard': 10,   # Standard and medium are the same
+        'medium': 10,
+        'large': 20       # Larger size for 'large'
+    }
+    box_size = size_mapping.get(size, 10)  # Default to 'standard' if size is invalid
+
     # Create QR Code
     qr = qrcode.QRCode(
-        version=1, box_size=10, border=4, error_correction=qrcode.constants.ERROR_CORRECT_H
+        version=1, box_size=box_size, border=4, error_correction=qrcode.constants.ERROR_CORRECT_H
     )
     qr.add_data(url)
     qr.make(fit=True)

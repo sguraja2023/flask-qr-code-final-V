@@ -5,14 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium</title>
     <style>
+        /* Make sure the gradient spans the entire page smoothly */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            background-color: #EAF4F8;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            height: 100vh;
-            margin: 0;
+            background: linear-gradient(135deg, blue, green, gray, purple);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-size: cover;
             padding-top: 20px;
         }
 
@@ -133,6 +140,13 @@
                 <option value="white" selected>White</option>
                 <option value="gray">Gray</option>
                 <option value="black">Black</option>
+            </select>
+
+            <label for="size">Select QR Code Size:</label>
+            <select id="size" name="size">
+                <option value="standard" selected>Standard</option>
+                <option value="small">Small</option>
+                <option value="large">Large</option>
             </select>
 
             <label for="image">Upload Image/Logo:</label>
