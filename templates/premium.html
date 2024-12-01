@@ -12,21 +12,29 @@
 
         body {
             font-family: Arial, sans-serif;
+            background: linear-gradient(
+                135deg,
+                blue, green, gray, purple, orange, pink, cyan, red
+            );
+            background-size: 800% 800%;
+            animation: gradientAnimation 6s ease infinite;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            background: linear-gradient(135deg, blue, green, gray, purple);
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-size: cover;
             padding-top: 20px;
         }
 
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .container {
-            background: #ffffff;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 400px;
             text-align: center;
@@ -68,24 +76,37 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-        }
-
-        button.submit-btn {
-            background-color: #4CAF50;
+            background: linear-gradient(90deg, #4CAF50, #007BFF, #FF5722, #FF9800);
             color: white;
-            width: 100%;
-            margin-bottom: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        button.submit-btn:hover {
-            background-color: #45A049;
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .logout-button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #FF0000; /* Red background for visibility */
+            color: white; /* White text for contrast */
+            text-decoration: none;
+            border-radius: 8px;
+            display: inline-block;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .logout-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         a {
-            display: block;
-            margin-top: 20px;
-            color: #007BFF;
             text-decoration: none;
+            color: white;
             font-size: 16px;
         }
 
@@ -93,27 +114,6 @@
             text-decoration: underline;
         }
     </style>
-    <script>
-        // Synchronize color picker with the input field
-        function syncColorPicker() {
-            const primaryColorInput = document.getElementById('color');
-            const colorPicker = document.getElementById('colorPicker');
-
-            // Sync color picker with the input field
-            colorPicker.addEventListener('input', () => {
-                primaryColorInput.value = colorPicker.value;
-            });
-
-            // Sync input field with color picker
-            primaryColorInput.addEventListener('input', () => {
-                if (primaryColorInput.value.startsWith('#') && primaryColorInput.value.length === 7) {
-                    colorPicker.value = primaryColorInput.value;
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', syncColorPicker);
-    </script>
 </head>
 <body>
     <div class="container">
@@ -165,7 +165,8 @@
             <button type="submit" class="submit-btn">Generate QR Code</button>
         </form>
 
-        <a href="{{ url_for('logout') }}">Log Out</a>
+        <!-- Log Out Button -->
+        <a href="{{ url_for('logout') }}" class="logout-button">Log Out</a>
     </div>
 </body>
 </html>
