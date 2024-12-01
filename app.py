@@ -24,7 +24,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 # Dummy user data (for demonstration)
 USER_DATA = {
     "admin@example.com": {"password": "password123", "role": "admin", "is_premium": False},
-    "user@example.com": {"password": "user123", "role": "user", "is_premium": True},
+    "user@example.com": {"password": "user123", "role": "user", "is_premium": False},
 }
 
 # URL validation function
@@ -45,10 +45,8 @@ def is_valid_color_name(color):
 
 @app.route('/')
 def index():
-    # Redirect to login if the user is not logged in
-    if 'user' not in session:
-        return redirect(url_for('login'))
-    return redirect(url_for('home'))
+    # Redirect to login initially
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -61,11 +59,9 @@ def login():
             session['user'] = username
             session['role'] = USER_DATA[username].get('role', 'user')
             flash('Login successful!', 'success')
-
             if session['role'] == 'admin':
                 return redirect(url_for('admin_dashboard'))
-            else:
-                return redirect(url_for('home'))
+            return redirect(url_for('home'))
         else:
             flash('Invalid credentials. Please try again.', 'danger')
 
@@ -104,6 +100,18 @@ def home():
         flash('Please log in to access this page.', 'warning')
         return redirect(url_for('login'))
     return render_template('index.html')
+
+@app.route('/premium', methods=['GET'])
+def premium():
+    if 'user' not in session:
+        flash('Please log in to access premium features.', 'warning')
+        return redirect(url_for('login'))
+    
+    current_user = session.get('user')
+    if current_user and current_user in USER_DATA:
+        USER_DATA[current_user]['is_premium'] = True  # Set premium status when accessing the premium page
+    
+    return render_template('premium.html')
 
 @app.route('/generate_qr', methods=['POST'])
 def generate_qr():
@@ -152,11 +160,6 @@ def generate_qr():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     img.save(file_path, format='PNG')
 
-    # Update user's premium status only if not already premium
-    current_user = session.get('user')
-    if current_user and current_user in USER_DATA:
-        USER_DATA[current_user]['is_premium'] = True
-
     flash('QR Code generated successfully!', 'success')
     return redirect(url_for('display_qr', filename=filename))
 
@@ -193,11 +196,14 @@ def add_image_to_qr(qr_image, image_file):
     qr_image.paste(overlay, position, overlay)
     return qr_image
 
-@app.route('/admin', methods=['GET', 'POST'])
+@app.route('/admin', methods=['GET'])
 def admin_dashboard():
-    if 'user' not in session or session.get('role') != 'admin':
-        flash('Access denied. Admins only.', 'danger')
+    if 'user' not in session:
+        flash('Please log in to access the admin dashboard.', 'warning')
         return redirect(url_for('login'))
+    if session.get('role') != 'admin':
+        flash('Access denied. Admins only.', 'danger')
+        return redirect(url_for('home'))
 
     users = [
         {"email": email, "role": details["role"], "is_premium": details.get("is_premium", False)}
@@ -215,13 +221,6 @@ def admin_dashboard():
         premium_users=premium_users,
         monthly_revenue=monthly_revenue,
     )
-
-@app.route('/premium', methods=['GET'])
-def premium():
-    if 'user' not in session:
-        flash('Please log in to access premium features.', 'warning')
-        return redirect(url_for('login'))
-    return render_template('premium.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
