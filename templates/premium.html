@@ -90,8 +90,8 @@
             margin-top: 20px;
             padding: 12px 20px;
             font-size: 16px;
-            background-color: #FF0000; /* Red background for visibility */
-            color: white; /* White text for contrast */
+            background-color: #FF0000;
+            color: white;
             text-decoration: none;
             border-radius: 8px;
             display: inline-block;
@@ -114,6 +114,27 @@
             text-decoration: underline;
         }
     </style>
+    <script>
+        // Synchronize the color picker with the text input field
+        function syncColorPicker() {
+            const primaryColorInput = document.getElementById('color');
+            const colorPicker = document.getElementById('colorPicker');
+
+            // Sync the text input with the color picker
+            colorPicker.addEventListener('input', () => {
+                primaryColorInput.value = colorPicker.value;
+            });
+
+            // Sync the color picker with the text input
+            primaryColorInput.addEventListener('input', () => {
+                if (primaryColorInput.value.startsWith('#') && primaryColorInput.value.length === 7) {
+                    colorPicker.value = primaryColorInput.value;
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', syncColorPicker);
+    </script>
 </head>
 <body>
     <div class="container">
