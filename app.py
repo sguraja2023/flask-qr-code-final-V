@@ -45,7 +45,6 @@ def is_valid_color_name(color):
 
 @app.route('/')
 def index():
-    # Redirect to login initially
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -54,7 +53,6 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        # Validate credentials
         if username in USER_DATA and USER_DATA[username]['password'] == password:
             session['user'] = username
             session['role'] = USER_DATA[username].get('role', 'user')
