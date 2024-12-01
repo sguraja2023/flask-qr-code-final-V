@@ -24,7 +24,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 # Dummy user data (for demonstration)
 USER_DATA = {
     "admin@example.com": {"password": "password123", "role": "admin", "is_premium": False},
-    "user@example.com": {"password": "user123", "role": "user", "is_premium": True},
+    "user@example.com": {"password": "user123", "role": "user", "is_premium": False},
 }
 
 # URL validation function
