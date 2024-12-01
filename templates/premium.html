@@ -7,13 +7,13 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #EAF4F8; /* Matches the light blue in your logo */
+            background-color: #EAF4F8;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align items at the top with padding */
+            align-items: flex-start;
             height: 100vh;
             margin: 0;
-            padding-top: 20px; /* Ensures space above the logo */
+            padding-top: 20px;
         }
 
         .container {
@@ -24,13 +24,12 @@
             width: 100%;
             max-width: 400px;
             text-align: center;
-            border: 5px solid #B7E3E4; /* Adds a complementary border */
+            border: 5px solid #B7E3E4;
             position: relative;
         }
 
         img {
-            margin-top: 0; /* No additional margin needed with body padding */
-            max-width: 60%; /* Keeps the size consistent */
+            max-width: 60%;
             height: auto;
             margin-bottom: 20px;
         }
@@ -90,16 +89,18 @@
     </style>
     <script>
         function syncColorPicker() {
+            const primaryColorInput = document.getElementById('color');
             const colorPicker = document.getElementById('colorPicker');
-            const colorInput = document.getElementById('color');
 
+            // Sync color picker with the input field
             colorPicker.addEventListener('input', () => {
-                colorInput.value = colorPicker.value;
+                primaryColorInput.value = colorPicker.value;
             });
 
-            colorInput.addEventListener('input', () => {
-                if (colorInput.value.startsWith('#') && colorInput.value.length === 7) {
-                    colorPicker.value = colorInput.value;
+            // Sync input field with color picker
+            primaryColorInput.addEventListener('input', () => {
+                if (primaryColorInput.value.startsWith('#') && primaryColorInput.value.length === 7) {
+                    colorPicker.value = primaryColorInput.value;
                 }
             });
         }
@@ -109,23 +110,29 @@
 </head>
 <body>
     <div class="container">
-        <!-- Logo -->
         <img src="{{ url_for('static', filename='StyleQRNEWNEW.png') }}" alt="Style QR Logo">
 
         <form action="{{ url_for('generate_qr') }}" method="POST" enctype="multipart/form-data">
             <label for="url">Enter URL:</label>
             <input type="text" id="url" name="url" placeholder="https://example.com" required>
 
-            <label for="color">Choose Color:</label>
-            <input type="text" id="color" name="color" placeholder="e.g., red">
-
-            <label for="colorPicker">Choose Color:</label>
-            <input type="color" id="colorPicker" name="colorPicker" value="#000000">
+            <label for="color">Choose QR Code Color:</label>
+            <input type="text" id="color" name="color" placeholder="e.g., red or #FF5733">
             
+            <label for="colorPicker">Pick QR Code Color:</label>
+            <input type="color" id="colorPicker" name="colorPicker" value="#000000">
+
             <label for="shape">Choose Data Pattern:</label>
             <select id="shape" name="shape">
                 <option value="square">Square</option>
-                <option value="circle">Circle (Black only available)</option>
+                <option value="circle">Circle (only black/white available)</option>
+            </select>
+
+            <label for="background_color">Background Color:</label>
+            <select id="background_color" name="background_color">
+                <option value="white" selected>White</option>
+                <option value="gray">Gray</option>
+                <option value="black">Black</option>
             </select>
 
             <label for="image">Upload Image/Logo:</label>

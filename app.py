@@ -24,7 +24,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 # Dummy user data (for demonstration)
 USER_DATA = {
     "admin@example.com": {"password": "password123", "role": "admin", "is_premium": False},
-    "user@example.com": {"password": "user123", "role": "user", "is_premium": True},  # Premium user example
+    "user@example.com": {"password": "user123", "role": "user", "is_premium": True},
 }
 
 # URL validation function
@@ -121,37 +121,52 @@ def generate_qr():
         flash('Please log in to access this feature.', 'warning')
         return redirect(url_for('login'))
 
+    # Get form data
     url = request.form['url']
     color = request.form.get('color', '').strip().lower()
+    background_color = request.form.get('background_color', 'white').strip().lower()
     shape = request.form.get('shape', 'square')
     image_file = request.files.get('image', None)
 
+    # Validate URL
     if not is_valid_url(url):
         flash('Invalid URL. Please provide a valid URL.', 'danger')
         return redirect(request.referrer)
 
+    # Validate QR code color
     if not color or not (is_valid_hex_color(color) or is_valid_color_name(color)):
         color = 'black'
 
+    # Validate background color
+    if background_color not in ['white', 'gray', 'black']:
+        flash('Invalid background color selected. Please choose a valid option.', 'danger')
+        return redirect(request.referrer)
+
+    # Create QR Code
     qr = qrcode.QRCode(
         version=1, box_size=10, border=4, error_correction=qrcode.constants.ERROR_CORRECT_H
     )
     qr.add_data(url)
     qr.make(fit=True)
 
+    # Generate QR code
     if shape == "circle":
         img = qr.make_image(
             fill_color=color,
-            back_color="white",
+            back_color=background_color,
             image_factory=StyledPilImage,
-            module_drawer=CircleModuleDrawer(),
+            module_drawer=CircleModuleDrawer()
         )
     else:
-        img = qr.make_image(fill_color=color, back_color="white")
+        img = qr.make_image(fill_color=color, back_color=background_color)
 
+    img = img.convert("RGBA")
+
+    # Add overlay image if provided
     if image_file and image_file.filename != '':
         img = add_image_to_qr(img, image_file)
 
+    # Save QR Code
     filename = 'qr_code.png'
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     img.save(file_path, format='PNG')
