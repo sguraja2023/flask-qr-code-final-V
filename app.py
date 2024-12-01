@@ -24,7 +24,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 # Dummy user data (for demonstration)
 USER_DATA = {
     "admin@example.com": {"password": "password123", "role": "admin", "is_premium": False},
-    "user@example.com": {"password": "user123", "role": "user", "is_premium": False},
+    "user@example.com": {"password": "user123", "role": "user", "is_premium": True},  # Premium user example
 }
 
 # URL validation function
@@ -56,9 +56,13 @@ def login():
         if username in USER_DATA and USER_DATA[username]['password'] == password:
             session['user'] = username
             session['role'] = USER_DATA[username].get('role', 'user')
+            is_premium = USER_DATA[username].get('is_premium', False)
             flash('Login successful!', 'success')
+            
             if session['role'] == 'admin':
                 return redirect(url_for('admin_dashboard'))
+            if is_premium:
+                return redirect(url_for('premium'))
             return redirect(url_for('home'))
         else:
             flash('Invalid credentials. Please try again.', 'danger')
