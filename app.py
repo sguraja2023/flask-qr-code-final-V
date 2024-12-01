@@ -120,20 +120,17 @@ def generate_qr():
         return redirect(url_for('login'))
 
     url = request.form['url']
-    color = request.form.get('color', '').strip().lower()  # Get color input and sanitize it
+    color = request.form.get('color', '').strip().lower()
     shape = request.form.get('shape', 'square')
     image_file = request.files.get('image', None)
 
-    # Validate the URL
     if not is_valid_url(url):
         flash('Invalid URL. Please provide a valid URL.', 'danger')
         return redirect(request.referrer)
 
-    # Default color to black if invalid or not provided
     if not color or not (is_valid_hex_color(color) or is_valid_color_name(color)):
         color = 'black'
 
-    # Create the QR Code
     qr = qrcode.QRCode(
         version=1, box_size=10, border=4, error_correction=qrcode.constants.ERROR_CORRECT_H
     )
@@ -150,11 +147,9 @@ def generate_qr():
     else:
         img = qr.make_image(fill_color=color, back_color="white")
 
-    # Add overlay image if provided
     if image_file and image_file.filename != '':
         img = add_image_to_qr(img, image_file)
 
-    # Save the QR code
     filename = 'qr_code.png'
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     img.save(file_path, format='PNG')
@@ -173,7 +168,8 @@ def display_qr(filename):
         flash('QR Code not found.', 'danger')
         return redirect(url_for('home'))
 
-    return render_template('display_qr.html', filename=filename)
+    back_url = request.referrer if request.referrer else url_for('home')
+    return render_template('display_qr.html', filename=filename, back_url=back_url)
 
 @app.route('/download/<filename>')
 def download_file(filename):
@@ -185,18 +181,14 @@ def download_file(filename):
         return redirect(url_for('home'))
 
 def add_image_to_qr(qr_image, image_file):
-    # Open the overlay image
     overlay = Image.open(image_file).convert("RGBA")
     qr_width, qr_height = qr_image.size
 
-    # Resize the overlay image to fit inside the QR code
     overlay_size = int(qr_width * 0.3)
     overlay = overlay.resize((overlay_size, overlay_size), Image.Resampling.LANCZOS)
 
-    # Position the overlay image at the center of the QR code
     position = ((qr_width - overlay.width) // 2, (qr_height - overlay.height) // 2)
 
-    # Ensure QR code remains black while overlay retains its colors
     qr_image_with_overlay = qr_image.convert("RGBA")
     qr_image_with_overlay.paste(overlay, position, overlay)
 
