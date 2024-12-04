@@ -6,9 +6,21 @@
     <title>Style QR</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom right, #eaf4f8, #b7dede, #ffffff, #d1c4e9, #fff9c4); /* Colors from the logo with hints of light purple and light yellow */
+            background: linear-gradient(
+                135deg, 
+                #eaf4f8, #ffb6c1, #d1c4e9, #b7e3e4, 
+                #fff9c4, #ffcdd2, #c8f7c5, #ff8a80
+            );
+            background-size: 400% 400%;
+            animation: gradientAnimation 12s ease infinite;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -17,19 +29,18 @@
         }
 
         .container {
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            width: 100%;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
             max-width: 400px;
             text-align: center;
-            border: 5px solid #b7dede; /* Matches the complementary blue-grey from the logo */
-            position: relative;
+            border: 5px solid #b7e3e4;
         }
 
         img {
-            margin-top: 20px; /* Moves the logo down slightly */
+            margin-top: 20px;
             max-width: 60%;
             height: auto;
             margin-bottom: 20px;

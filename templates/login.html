@@ -5,9 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <style>
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(to bottom right, #eaf4f8, #b7dede, #ffffff, #d1c4e9, #c8f7c5, #fff9c4); /* Added light green (#c8f7c5) */
+            background: linear-gradient(45deg, #eaf4f8, #b7dede, #ffffff, #d1c4e9, #c8f7c5, #fff9c4);
+            background-size: 400% 400%; /* Enlarges the gradient for a smoother effect */
+            animation: gradientAnimation 15s ease infinite; /* Infinite animation */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,7 +35,7 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
-            border: 5px solid #b7dede; /* Matches the complementary blue-grey */
+            border: 5px solid #b7dede;
         }
         .header {
             display: flex;

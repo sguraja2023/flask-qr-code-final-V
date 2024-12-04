@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Business Card</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(
+                135deg, 
+                #eaf4f8, #ffb6c1, #d1c4e9, #b7e3e4, 
+                #fff9c4, #ffcdd2, #c8f7c5, #ff8a80
+            );
+            background-size: 400% 400%;
+            animation: gradientAnimation 10s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .form-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 450px;
+            border: 5px solid #b7e3e4;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button, .back-home-btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover, .back-home-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .generate-btn {
+            background: linear-gradient(90deg, #007BFF, #4CAF50, #FF5722);
+            margin-bottom: 10px;
+        }
+
+        .back-home-btn {
+            background-color: #6c757d;
+            display: block;
+        }
+
+        .back-home-btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Generate Business Card</h1>
+        <form method="POST" action="{{ url_for('generate_business_card') }}">
+            <label for="company_name">Company Name</label>
+            <input type="text" id="company_name" name="company_name" placeholder="Enter company name" required>
+
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+            <label for="position">Position/Title</label>
+            <input type="text" id="position" name="position" placeholder="Enter your position" required>
+
+            <label for="phone">Phone Number</label>
+            <input type="text" id="phone" name="phone" placeholder="Enter phone number" required>
+
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="Enter email address" required>
+
+            <label for="website">Website</label>
+            <input type="url" id="website" name="website" placeholder="Enter website URL" required>
+
+            <button type="submit" class="generate-btn">Generate Business Card</button>
+        </form>
+
+        <!-- Back Home Button -->
+        <a href="{{ back_url }}" class="back-home-btn">Back Home</a>
+    </div>
+</body>
+</html>

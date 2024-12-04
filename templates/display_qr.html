@@ -12,8 +12,8 @@
                 #eaf4f8, #ffb6c1, #d1c4e9, #b7e3e4, 
                 #fff9c4, #ffcdd2, #c8f7c5, #ff8a80
             );
-            background-size: 400% 400%; /* Make the gradient dynamic */
-            animation: gradientAnimation 10s ease infinite; /* Animate the gradient */
+            background-size: 400% 400%;
+            animation: gradientAnimation 10s ease infinite;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -29,7 +29,7 @@
 
         .container {
             text-align: center;
-            background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
@@ -46,9 +46,9 @@
 
         img {
             display: block;
-            max-width: 100%; 
+            max-width: 100%;
             height: auto;
-            margin: 0 auto 20px auto; 
+            margin: 0 auto 20px auto;
             border: 2px solid #cccccc;
             border-radius: 10px;
         }
@@ -75,6 +75,16 @@
             color: white;
             font-size: 16px;
         }
+
+        .business-card-btn {
+            background-color: #dda0dd;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .business-card-btn:hover {
+            background-color: #ba55d3;
+        }
     </style>
 </head>
 <body>
@@ -91,6 +101,11 @@
         <!-- Back Home Button -->
         <button>
             <a href="{{ back_url }}">Back Home</a>
+        </button>
+        <br>
+        <!-- Generate Business Card Button -->
+        <button class="business-card-btn">
+            <a href="{{ url_for('generate_business_card') }}" style="color: white; text-decoration: none;">Generate Business Card</a>
         </button>
     </div>
 </body>

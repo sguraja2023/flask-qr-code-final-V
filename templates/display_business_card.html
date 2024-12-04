@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Card</title>
+    <style>
+        /* Animated Gradient Background */
+        body {
+            font-family: 'Comic Sans MS', 'Brush Script MT', cursive;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(
+                135deg,
+                #ff9a9e, #fad0c4, #fbc2eb, #a18cd1, #fbc2eb, #fad0c4
+            );
+            background-size: 400% 400%;
+            animation: gradientAnimation 6s ease infinite;
+            flex-direction: column;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .business-card {
+            width: 336px; /* 3.5 inches */
+            height: 192px; /* 2 inches */
+            background-color: #ffffff;
+            border: 2px solid #dddddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .info {
+            font-size: 14px;
+            line-height: 1.2;
+            position: absolute;
+            left: 20px; /* Center-left adjustment */
+            top: 40px; /* Vertical alignment for balance */
+        }
+
+        .info p {
+            margin: 0;
+            margin-bottom: 4px; /* Subtle spacing for readability */
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px; /* Slightly larger margin for title */
+        }
+
+        .qr-code-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: absolute;
+            right: 30px; /* Adjusted slightly left for centering */
+            top: 60px; /* Moved QR code lower */
+        }
+
+        .qr-code {
+            margin-top: 5px;
+            width: 115px; /* Increased size */
+            height: 115px;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: auto;
+            border: 2px solid #cccccc;
+            border-radius: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-button {
+            width: 150px;
+            padding: 10px;
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .action-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .edit-form-btn {
+            background: #007BFF;
+        }
+
+        .edit-form-btn:hover {
+            background: #0056b3;
+        }
+
+        .download-btn {
+            background: #28a745;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <!-- Business Card -->
+    <div id="business-card" class="business-card">
+        <div class="info">
+            <div class="logo">{{ company_name }}</div>
+            <p>{{ name }}</p>
+            <p>{{ position }}</p>
+            <p>{{ phone }}</p>
+            <p>{{ email }}</p>
+            <p>{{ website }}</p>
+        </div>
+        <div class="qr-code-container">
+            <div class="qr-code">
+                <img src="{{ qr_code_path }}" alt="QR Code">
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{{ back_url }}" class="action-button">Back Home</a>
+        <a href="{{ edit_url }}" class="action-button edit-form-btn">Edit Form</a>
+        <!-- Download Card Button -->
+        <button id="download-btn" class="action-button download-btn">Download Card</button>
+    </div>
+
+    <script>
+        // Convert the business card to an image and download it
+        document.getElementById('download-btn').addEventListener('click', function () {
+            const cardElement = document.getElementById('business-card');
+            html2canvas(cardElement).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'business-card.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</body>
+</html>

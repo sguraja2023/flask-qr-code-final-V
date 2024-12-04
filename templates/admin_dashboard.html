@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <style>
+        /* General styles */
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(
@@ -99,6 +100,7 @@
             font-weight: bold;
         }
 
+        /* Link Styling */
         a {
             display: inline-block;
             margin-top: 20px;
@@ -110,6 +112,36 @@
 
         a:hover {
             text-decoration: underline;
+        }
+
+        /* Button Styles */
+        button {
+            font-size: 14px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .edit-button {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .edit-button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -142,15 +174,31 @@
                     <th>Email</th>
                     <th>Role</th>
                     <th>Premium</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for user in users %}
                 <tr>
                     <td>{{ user.email }}</td>
-                    <td>{{ user.role }}</td>
-                    <td class="{{ 'premium' if user.is_premium else '' }}">
-                        {{ 'Yes' if user.is_premium else 'No' }}
+                    <td>
+                        <form action="{{ url_for('update_user') }}" method="post" style="display: inline;">
+                            <input type="hidden" name="email" value="{{ user.email }}">
+                            <select name="role" class="edit-button">
+                                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                                <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                            </select>
+                    </td>
+                    <td>
+                            <input type="checkbox" name="is_premium" {% if user.is_premium %}checked{% endif %} class="edit-button">
+                    </td>
+                    <td>
+                            <button type="submit" class="edit-button">Edit</button>
+                        </form>
+                        <form action="{{ url_for('delete_user') }}" method="post" style="display: inline;">
+                            <input type="hidden" name="email" value="{{ user.email }}">
+                            <button type="submit" class="delete-button">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
