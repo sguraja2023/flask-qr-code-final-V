@@ -21,13 +21,15 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
-# Dummy user data (for demonstration)
+# Dummy user data
 USER_DATA = {
     "admin@example.com": {"password": "password123", "role": "admin", "is_premium": False},
     "user@example.com": {"password": "user123", "role": "user", "is_premium": False},
 }
 
-# URL validation function
+PREMIUM_PRICE = 3  # Monthly cost for premium users
+
+# Helper functions
 def is_valid_url(url):
     try:
         result = urlparse(url)
@@ -35,13 +37,8 @@ def is_valid_url(url):
     except ValueError:
         return False
 
-# Hex color validation function
 def is_valid_hex_color(color):
     return bool(re.match(r'^#[0-9a-fA-F]{6}$', color))
-
-# Color name validation function (from matplotlib)
-def is_valid_color_name(color):
-    return color.lower() in matplotlib.colors.CSS4_COLORS
 
 @app.route('/')
 def index():
@@ -56,12 +53,12 @@ def login():
         if username in USER_DATA and USER_DATA[username]['password'] == password:
             session['user'] = username
             session['role'] = USER_DATA[username].get('role', 'user')
-            is_premium = USER_DATA[username].get('is_premium', False)
+            session['is_premium'] = USER_DATA[username].get('is_premium', False)
             flash('Login successful!', 'success')
-            
+
             if session['role'] == 'admin':
                 return redirect(url_for('admin_dashboard'))
-            if is_premium:
+            elif session['is_premium']:
                 return redirect(url_for('premium'))
             return redirect(url_for('home'))
         else:
@@ -101,19 +98,85 @@ def home():
     if 'user' not in session:
         flash('Please log in to access this page.', 'warning')
         return redirect(url_for('login'))
-    return render_template('index.html')
+    return render_template('index.html', is_premium=session.get('is_premium', False))
 
 @app.route('/premium', methods=['GET'])
 def premium():
     if 'user' not in session:
         flash('Please log in to access premium features.', 'warning')
         return redirect(url_for('login'))
-    
+
+    if session.get('role') == 'admin':
+        flash('Admins do not need premium upgrades.', 'info')
+        return redirect(url_for('admin_dashboard'))
+
     current_user = session.get('user')
     if current_user and current_user in USER_DATA:
-        USER_DATA[current_user]['is_premium'] = True  # Set premium status when accessing the premium page
-    
-    return render_template('premium.html')
+        USER_DATA[current_user]['is_premium'] = True
+        session['is_premium'] = True
+        flash('You have successfully upgraded to premium!', 'success')
+
+    return render_template('premium.html', is_premium=True)
+
+@app.route('/admin', methods=['GET'])
+def admin_dashboard():
+    if 'user' not in session:
+        flash('Please log in to access the admin dashboard.', 'warning')
+        return redirect(url_for('login'))
+    if session.get('role') != 'admin':
+        flash('Access denied. Admins only.', 'danger')
+        return redirect(url_for('home'))
+
+    users = [
+        {"email": email, "role": details["role"], "is_premium": details.get("is_premium", False)}
+        for email, details in USER_DATA.items()
+    ]
+    total_users = len(users)
+    premium_users = sum(1 for user in users if user["is_premium"])
+    monthly_revenue = premium_users * PREMIUM_PRICE
+
+    return render_template(
+        'admin_dashboard.html',
+        users=users,
+        total_users=total_users,
+        premium_users=premium_users,
+        monthly_revenue=monthly_revenue,
+    )
+
+@app.route('/update_user', methods=['POST'])
+def update_user():
+    if 'user' not in session or session.get('role') != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('login'))
+
+    email = request.form.get('email')
+    role = request.form.get('role')
+    is_premium = 'is_premium' in request.form
+
+    if email in USER_DATA:
+        USER_DATA[email]['role'] = role
+        USER_DATA[email]['is_premium'] = is_premium
+        flash(f"User {email} updated successfully.", 'success')
+    else:
+        flash('User not found.', 'danger')
+
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/delete_user', methods=['POST'])
+def delete_user():
+    if 'user' not in session or session.get('role') != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('login'))
+
+    email = request.form.get('email')
+
+    if email in USER_DATA:
+        del USER_DATA[email]
+        flash(f"User {email} deleted successfully.", 'success')
+    else:
+        flash('User not found.', 'danger')
+
+    return redirect(url_for('admin_dashboard'))
 
 @app.route('/generate_qr', methods=['POST'])
 def generate_qr():
@@ -123,7 +186,7 @@ def generate_qr():
 
     # Get form data
     url = request.form['url']
-    color = request.form.get('color', '').strip().lower()
+    color = request.form.get('color', 'black').strip().lower()
     gradient_color = request.form.get('gradient', 'none')
     background_color = request.form.get('background_color', 'white').strip().lower()
     shape = request.form.get('shape', 'square')
@@ -135,73 +198,59 @@ def generate_qr():
         flash('Invalid URL. Please provide a valid URL.', 'danger')
         return redirect(request.referrer)
 
-    # Handle circle pattern: Ignore all except image and size
+    # Validate colors and default to black if invalid
+    if not (is_valid_hex_color(color) or color in matplotlib.colors.CSS4_COLORS):
+        color = "black"
+
+    # Handle gradient or circle pattern input
+    if gradient_color != "none":
+        background_color = "white"  # Background color is ignored for gradients
+
     if shape == "circle":
-        fill_color = "black"
-        gradient_color = None
-        background_color = "white"
-        gradient_colors = None
+        gradient_color = "none"  # Gradient is ignored for circles
+        background_color = "white"  # Background is ignored for circles
+        color = "black"  # Default color for circle pattern
 
-    else:
-        # Handle gradient: Gradient ignores background color
-        if gradient_color != "none":
-            background_color = "white"  # Default background to white if gradient is selected
-
-        # Validate colors
-        if not color or not (is_valid_hex_color(color) or is_valid_color_name(color)):
-            color = 'black'
-
-        # Define gradient colors
-        gradient_mapping = {
-            "red-yellow": ["#FF0000", "#FFFF00"],
-            "blue-green": ["#0000FF", "#00FF00"],
-            "purple-pink": ["#800080", "#FFC0CB"],
-            "orange-teal": ["#FFA500", "#008080"],
-            "black-white": ["#000000", "#FFFFFF"]
-        }
-        gradient_colors = gradient_mapping.get(gradient_color, None)
-        fill_color = color
-
-    # Map size options to box sizes
-    size_mapping = {
-        'small': 5,
-        'standard': 10,
-        'medium': 10,
-        'large': 20
+    # QR code customization
+    gradient_mapping = {
+        "red-yellow": ["#FF0000", "#FFFF00"],
+        "blue-green": ["#0000FF", "#00FF00"],
+        "purple-pink": ["#800080", "#FFC0CB"],
+        "orange-teal": ["#FFA500", "#008080"],
+        "black-white": ["#000000", "#FFFFFF"]
     }
+    gradient_colors = gradient_mapping.get(gradient_color, None)
+    size_mapping = {'small': 5, 'standard': 10, 'medium': 15, 'large': 20}
     box_size = size_mapping.get(size, 10)
 
-    # Create QR Code
     qr = qrcode.QRCode(
         version=1, box_size=box_size, border=4, error_correction=qrcode.constants.ERROR_CORRECT_H
     )
     qr.add_data(url)
     qr.make(fit=True)
 
-    # Generate the QR code with gradient or solid fill
     if gradient_colors:
         img = create_gradient_qr(qr, gradient_colors, background_color, shape)
     elif shape == "circle":
         img = qr.make_image(
-            fill_color=fill_color,
+            fill_color=color,
             back_color=background_color,
             image_factory=StyledPilImage,
             module_drawer=CircleModuleDrawer()
         )
     else:
-        img = qr.make_image(fill_color=fill_color, back_color=background_color)
+        img = qr.make_image(fill_color=color, back_color=background_color)
 
     img = img.convert("RGBA")
 
-    # Add overlay image if provided
     if image_file and image_file.filename != '':
         img = add_image_to_qr(img, image_file)
 
-    # Save QR Code
     filename = 'qr_code.png'
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     img.save(file_path, format='PNG')
 
+    session['last_qr_file'] = filename  # Save the last generated QR code filename
     flash('QR Code generated successfully!', 'success')
     return redirect(url_for('display_qr', filename=filename))
 
@@ -210,14 +259,64 @@ def display_qr(filename):
     if 'user' not in session:
         flash('Please log in to access this feature.', 'warning')
         return redirect(url_for('login'))
-    
+
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if not os.path.exists(file_path):
         flash('QR Code not found.', 'danger')
         return redirect(url_for('home'))
 
-    back_url = request.referrer if request.referrer else url_for('home')
-    return render_template('display_qr.html', filename=filename, back_url=back_url)
+    # Determine the appropriate "Back Home" link
+    if session.get('role') == 'admin':
+        back_url = url_for('admin_dashboard')
+    elif session.get('is_premium'):
+        back_url = url_for('premium')
+    else:
+        back_url = url_for('home')
+
+    return render_template(
+        'display_qr.html',
+        filename=filename,
+        back_url=back_url,
+        timestamp=os.path.getmtime(file_path)
+    )
+
+@app.route('/generate_business_card', methods=['GET', 'POST'])
+def generate_business_card():
+    if 'user' not in session:
+        flash('Please log in to access this feature.', 'warning')
+        return redirect(url_for('login'))
+
+    qr_code_path = url_for('static', filename=f'uploads/{session.get("last_qr_file", "qr_code.png")}')
+
+    if request.method == 'POST':
+        company_name = request.form.get('company_name', '').strip()
+        name = request.form.get('name', '').strip()
+        position = request.form.get('position', '').strip()
+        phone = request.form.get('phone', '').strip()
+        email = request.form.get('email', '').strip()
+        website = request.form.get('website', '').strip()
+
+        return render_template(
+            'display_business_card.html',
+            company_name=company_name,
+            name=name,
+            position=position,
+            phone=phone,
+            email=email,
+            website=website,
+            qr_code_path=qr_code_path,
+            back_url=url_for('generate_business_card'),
+        )
+
+    # Determine the appropriate "Back Home" link
+    if session.get('role') == 'admin':
+        back_url = url_for('admin_dashboard')
+    elif session.get('is_premium'):
+        back_url = url_for('premium')
+    else:
+        back_url = url_for('home')
+
+    return render_template('business_card_form.html', back_url=back_url)
 
 @app.route('/download/<filename>')
 def download_file(filename):
@@ -229,10 +328,6 @@ def download_file(filename):
         return redirect(url_for('home'))
 
 def create_gradient_qr(qr, gradient_colors, background_color, shape):
-    """
-    Create a QR code with a gradient fill applied only to the data modules.
-    Supports square and circle shapes.
-    """
     qr_image = qr.make_image(fill_color="black", back_color=background_color).convert("RGBA")
     qr_width, qr_height = qr_image.size
 
@@ -252,11 +347,11 @@ def create_gradient_qr(qr, gradient_colors, background_color, shape):
     for x in range(qr_width):
         for y in range(qr_height):
             pixel = qr_image.getpixel((x, y))
-            if pixel[0] == 0:  # Black modules of the QR code
+            if pixel[0] == 0:
                 gradient_pixel = gradient.getpixel((x, y))
                 gradient_qr.putpixel((x, y), gradient_pixel)
             else:
-                gradient_qr.putpixel((x, y), (255, 255, 255, 0))  # Transparent for white modules
+                gradient_qr.putpixel((x, y), (255, 255, 255, 0))
 
     if shape == "circle":
         mask = Image.new("L", (qr_width, qr_height), 0)
@@ -280,32 +375,6 @@ def add_image_to_qr(qr_image, image_file):
     qr_image_with_overlay.paste(overlay, position, overlay)
 
     return qr_image_with_overlay
-
-@app.route('/admin', methods=['GET'])
-def admin_dashboard():
-    if 'user' not in session:
-        flash('Please log in to access the admin dashboard.', 'warning')
-        return redirect(url_for('login'))
-    if session.get('role') != 'admin':
-        flash('Access denied. Admins only.', 'danger')
-        return redirect(url_for('home'))
-
-    users = [
-        {"email": email, "role": details["role"], "is_premium": details.get("is_premium", False)}
-        for email, details in USER_DATA.items()
-    ]
-    total_users = len(users)
-    premium_users = sum(1 for user in users if user["is_premium"])
-    premium_price = 3
-    monthly_revenue = premium_users * premium_price
-
-    return render_template(
-        'admin_dashboard.html',
-        users=users,
-        total_users=total_users,
-        premium_users=premium_users,
-        monthly_revenue=monthly_revenue,
-    )
 
 if __name__ == "__main__":
     app.run(debug=True)
